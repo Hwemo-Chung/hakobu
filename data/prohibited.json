@@ -1,0 +1,64 @@
+{
+  "version": "2026-10-22",
+  "corridor": "KR <-> JP",
+  "disclaimer": "Curated snapshot for a hackathon demo. Not a legal determination. Rules change; confirm with the carrier and the official destination authority.",
+  "defaultSourceUrl": "https://www.customs.go.kr/english/main.do",
+  "items": [
+    {
+      "id": "pressurized-aerosol",
+      "label": "Aerosol / pressurized container",
+      "level": "needs_check",
+      "aliases": ["aerosol", "spray can", "pressurized", "propellant", "スプレー", "エアゾール", "에어로졸", "喷雾"],
+      "reason": "Pressurized containers are restricted by air carriers and postal operators. Confirm the carrier's dangerous-goods policy before shipping.",
+      "sourceUrl": "https://www.post.japanpost.jp/int/use/restriction/index_en.html"
+    },
+    {
+      "id": "lithium-battery",
+      "label": "Lithium battery / power bank",
+      "level": "needs_check",
+      "aliases": ["lithium", "li-ion", "power bank", "battery", "バッテリー", "リチウム", "배터리", "보조배터리", "锂电池"],
+      "reason": "Loose or installed lithium cells are subject to dangerous-goods and watt-hour limits. Carrier approval may be required.",
+      "sourceUrl": "https://www.iata.org/en/programs/cargo/dgr/"
+    },
+    {
+      "id": "meat-dairy",
+      "label": "Meat, dairy, or animal products",
+      "level": "high",
+      "aliases": ["meat", "beef", "pork", "chicken", "sausage", "ham", "cheese", "dairy", "肉", "ソーセージ", "고기", "육류", "치즈", "肉类"],
+      "reason": "Animal products can carry quarantine risk and are commonly prohibited or require an import permit or certificate.",
+      "sourceUrl": "https://www.maff.go.jp/aqs/english/index.html"
+    },
+    {
+      "id": "plants-seeds",
+      "label": "Plants, seeds, or fresh produce",
+      "level": "high",
+      "aliases": ["plant", "seed", "bulb", "fresh fruit", "vegetable", "植物", "種", "果物", "식물", "씨앗", "과일"],
+      "reason": "Plant material is subject to phytosanitary controls and may require inspection or a certificate.",
+      "sourceUrl": "https://www.maff.go.jp/pps/english/index.html"
+    },
+    {
+      "id": "medicines",
+      "label": "Prescription medicine or supplements",
+      "level": "needs_check",
+      "aliases": ["medicine", "prescription", "antibiotic", "supplement", "vitamin", "薬", "処方", "의약품", "처방", "비타민", "药品"],
+      "reason": "Medicine and some supplements have prescription, permit, or quantity limits. Confirm with the destination authority.",
+      "sourceUrl": "https://www.mfds.go.kr/eng/index.do"
+    },
+    {
+      "id": "alcohol",
+      "label": "Alcohol",
+      "level": "needs_check",
+      "aliases": ["alcohol", "whisky", "whiskey", "wine", "sake", "soju", "beer", "アルコール", "酒", "술", "소주", "酒类"],
+      "reason": "Alcohol is restricted in international mail, has duty and tax implications, and may require a licence.",
+      "sourceUrl": "https://www.customs.go.kr/english/main.do"
+    },
+    {
+      "id": "counterfeit-currency",
+      "label": "Counterfeit goods or currency",
+      "level": "high",
+      "aliases": ["counterfeit", "fake", "replica", "currency", "banknote", "偽物", "模倣品", "위조", "가품", "假货"],
+      "reason": "Counterfeit goods and currency are prohibited. Shipments may be seized and the sender may face penalties.",
+      "sourceUrl": "https://www.customs.go.jp/english/summary/prohibit.htm"
+    }
+  ]
+}

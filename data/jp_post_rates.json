@@ -1,0 +1,49 @@
+{
+  "label": "公式料金表 기준",
+  "effectiveFrom": "2026-04-01",
+  "verified": false,
+  "sourceUrl": "https://www.post.japanpost.jp/int/charge/list/ems_all.html",
+  "note": "Sample EMS table values for the hackathon demo. Table-based, not live. Values are examples and must be verified against the official Japan Post and Korea Post rate tables before use.",
+  "tables": {
+    "JP->KR": {
+      "carrier": "Japan Post",
+      "service": "EMS",
+      "currency": "JPY",
+      "effectiveFrom": "2026-04-01",
+      "verified": false,
+      "sourceUrl": "https://www.post.japanpost.jp/int/charge/list/ems_all.html",
+      "note": "公式料金表 기준. Sample values only; verify at the official Japan Post EMS page.",
+      "rows": [
+        { "maxKg": 0.5, "price": 1450, "etaMin": 3, "etaMax": 5 },
+        { "maxKg": 1.0, "price": 2150, "etaMin": 3, "etaMax": 5 },
+        { "maxKg": 1.5, "price": 2750, "etaMin": 3, "etaMax": 5 },
+        { "maxKg": 2.0, "price": 3350, "etaMin": 3, "etaMax": 5 },
+        { "maxKg": 3.0, "price": 4350, "etaMin": 4, "etaMax": 6 },
+        { "maxKg": 5.0, "price": 6150, "etaMin": 4, "etaMax": 6 },
+        { "maxKg": 10.0, "price": 10150, "etaMin": 5, "etaMax": 8 },
+        { "maxKg": 20.0, "price": 16550, "etaMin": 5, "etaMax": 8 },
+        { "maxKg": 30.0, "price": 22950, "etaMin": 6, "etaMax": 9 }
+      ]
+    },
+    "KR->JP": {
+      "carrier": "Korea Post",
+      "service": "EMS",
+      "currency": "KRW",
+      "effectiveFrom": "2026-04-01",
+      "verified": false,
+      "sourceUrl": "https://www.koreapost.go.kr/",
+      "note": "公式料金表 기준. Sample Korea Post EMS values only; verify at the official Korea Post page.",
+      "rows": [
+        { "maxKg": 0.5, "price": 20300, "etaMin": 3, "etaMax": 6 },
+        { "maxKg": 1.0, "price": 24600, "etaMin": 3, "etaMax": 6 },
+        { "maxKg": 1.5, "price": 29000, "etaMin": 3, "etaMax": 6 },
+        { "maxKg": 2.0, "price": 33400, "etaMin": 4, "etaMax": 7 },
+        { "maxKg": 3.0, "price": 42000, "etaMin": 4, "etaMax": 7 },
+        { "maxKg": 5.0, "price": 57000, "etaMin": 5, "etaMax": 8 },
+        { "maxKg": 10.0, "price": 91000, "etaMin": 5, "etaMax": 9 },
+        { "maxKg": 20.0, "price": 155000, "etaMin": 6, "etaMax": 10 },
+        { "maxKg": 30.0, "price": 219000, "etaMin": 6, "etaMax": 11 }
+      ]
+    }
+  }
+}
