@@ -238,16 +238,16 @@ I am also proud of what the app refuses to do. It never auto-rejects an item, ne
 
 ## Built with
 
-Next.js 14.2.15, React 18.3.1, TypeScript 5.5.4, plain CSS, Nebius Token Factory, NVIDIA Nemotron 3 Nano, NVIDIA Nemotron 3 Super, NVIDIA Nemotron 3 Ultra, EasyPost test mode, frankfurter.app, GitHub, [hosting provider TBD].
+Next.js 14.2.15, React 18.3.1, TypeScript 5.5.4, plain CSS, Nebius Token Factory, NVIDIA Nemotron 3 Nano, NVIDIA Nemotron 3 Super, NVIDIA Nemotron 3 Ultra, EasyPost test mode, frankfurter.app, GitHub, Vercel Hobby.
 
 ## Try it out
 
-- **Live demo:** [TBD]
+- **Live demo:** https://app-vert-five-97.vercel.app
 - **Source code:** [TBD]
 - **Demo video (YouTube, under 3:00):** [TBD]
 - **Track:** Best Apps & Agents
 - **License:** MIT
-- **Judge access:** No login is implemented. Public URL: [TBD].
+- **Judge access:** No login is implemented. Public URL: https://app-vert-five-97.vercel.app.
 - **Demo data:** synthetic. Click **Load sample shipment**, then **Build plan**, to reproduce the Japan → Korea scenario.
 - **If live APIs are unavailable:** the app returns deterministic data with visible **MOCK** labels. There is no recorded-run mode.
 
@@ -520,7 +520,7 @@ I am listing these so the feedback is not read as more complete than it is. Each
 - **Keys are not in the repo.** All API keys are server-side environment variables. `.env*` files are gitignored, and the repo is checked with a secret scanner before release.
 - **Model prices** are from the Nebius Token Factory public catalog as of October 2026 and can change. The app reads model IDs from environment overrides and does not compute cost in this build.
 - **Video:** public on YouTube, under 3:00, English narration, no copyrighted music.
-- **Links:** demo, repository, and video URLs are [TBD] and will be filled before submission.
+- **Links:** demo https://app-vert-five-97.vercel.app, repository https://github.com/Hwemo-Chung/hakobu; video URL is [TBD].
 
 
 

@@ -25,7 +25,7 @@
 | **1:42–2:00** | **06 / Format — Address translation** (**AI FORMATTED**). Hold on the **Original** and **Formatted / Korea** boxes side by side, then the **Romanized** line. Read the note: **Formatting is a hint. Confirm field by field; deliverability is not validated.** | Address formatting is a separate step. The app shows the address you entered next to the destination-formatted version, plus a romanized line. It is a hint, not a validation — nothing is final until you check it field by field. |
 | **2:00–2:15** | **07 / Compare — Rate comparison**. Table columns: **Basis, Service, Price, ETA, Provenance**. Courier rows show **LIVE** and **EasyPost test mode · [time]**; the Japan Post EMS row shows **TABLE**, its effective date, **verified: false**, and its source link. If a courier call fails, its row is labeled **MOCK — Deterministic mock · not a quote**. The FX row shows **LIVE** or **FALLBACK**, the FX date, JPY→KRW and JPY→USD, and the FX source link. Keep one **LIVE** and the **TABLE** row in the same shot. | Then rates and ETA. EasyPost test rates carry a LIVE badge and a fetch time. The Japan Post EMS row is a table sample, labeled TABLE with its effective date. FX comes from frankfurter.app, or a labeled FALLBACK if it is unreachable. |
 | **2:15–2:45** | **Full-screen architecture slide.** Animate left to right: Browser → **Next.js route `/api/plan`** → **Nebius Token Factory** → **NVIDIA Nemotron 3 Nano / Super / Ultra**. Branch to EasyPost (**LIVE**, or **MOCK** fallback), Japan Post EMS table (**TABLE**), and frankfurter.app (**LIVE / FALLBACK**). A small routing-log box shows step, model, mode, latency. Keep the slide still for the full 30 seconds. | Every model call goes to Nebius Token Factory through its OpenAI-compatible API. Three NVIDIA Nemotron models share the work: Nano classifies items, runs the prohibited check, and formats the address; Super proposes HS candidates and the duty estimate; Ultra verifies and flags uncertainty. EasyPost supplies test rates, labeled LIVE or MOCK; the Japan Post EMS row is table-based; FX comes from frankfurter.app or a labeled fallback. The routing log shows model, mode, and latency. Models propose; a human confirms. |
-| **2:45–2:55** | Return to the plan: **02 / Compliance** flags, **04 / Verify** verdicts, **07 / Compare** with LIVE/TABLE badges, **08 / Routing**, and the footer **Estimates, not legal advice.** End card: **Hakobu** · demo / repo / video links [TBD]. Small text: **Estimates, not legal advice.** | Hakobu is one screen, honest labels, and a human at the end. Rates and duty are estimates. Check the official source before you ship. |
+| **2:45–2:55** | Return to the plan: **02 / Compliance** flags, **04 / Verify** verdicts, **07 / Compare** with LIVE/TABLE badges, **08 / Routing**, and the footer **Estimates, not legal advice.** End card: **Hakobu** · app-vert-five-97.vercel.app · github.com/Hwemo-Chung/hakobu · video [TBD]. Small text: **Estimates, not legal advice.** | Hakobu is one screen, honest labels, and a human at the end. Rates and duty are estimates. Check the official source before you ship. |
 
 **Total: 2:55.** The last five seconds are a hold on the end card; do not add a music sting.
 
@@ -150,8 +150,8 @@ Every AI call goes to Nebius Token Factory and runs on NVIDIA Nemotron models:
 Nano for classification and address formatting, Super for HS candidates and duty,
 Ultra as the verifier. FX comes from frankfurter.app (LIVE or labeled FALLBACK).
 
-Demo: [TBD]
-Source: [TBD]
+Demo: https://app-vert-five-97.vercel.app
+Source: https://github.com/Hwemo-Chung/hakobu
 Track: Best Apps & Agents — Nebius x NVIDIA Global AI Hackathon
 
 Duty, tax, HS, and ETA outputs are estimates, not legal advice. EasyPost rates are
