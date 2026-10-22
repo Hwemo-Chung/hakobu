@@ -5,7 +5,7 @@
 Hakobu turns an item list into a reviewable shipment plan: prohibited/quarantine flags, HS code candidates, a duty and tax estimate, a formatted address, and a side-by-side carrier comparison with ETA. Every generative AI call goes to **Nebius Token Factory** and runs on **NVIDIA Nemotron** models. Every output is labeled as a hint, an estimate, a table value, a live API response, or a deterministic mock — and a human decides what to do with it.
 
 > **Status:** Hackathon build for the Nebius x NVIDIA Global AI Hackathon, track **Best Apps & Agents**.  
-> **Repository name:** `hakobu` · **Live demo:** https://app-vert-five-97.vercel.app · **Demo video:** [TBD] · **Source URL:** https://github.com/Hwemo-Chung/hakobu  
+> **Repository name:** `hakobu` · **Live demo:** https://app-vert-five-97.vercel.app · **Demo video:** https://youtu.be/ytUPLzPD_G8 · **Source URL:** https://github.com/Hwemo-Chung/hakobu  
 > **License:** MIT (see [License](#license)).
 
 Hakobu does not take payment, buy postage, file customs documents, or track a parcel. It is a preparation and comparison layer, not a customs broker.
@@ -85,7 +85,7 @@ The sample shipment is synthetic: a 1.2 kg parcel to a Seoul address containing 
 
 Clicking **Load sample shipment** only fills the form. Click **Build plan** to run the pipeline.
 
-Screenshot: [TBD]
+Demo video: https://youtu.be/ytUPLzPD_G8
 
 All names, addresses, and parcel contents in the demo are synthetic. Do not record a real address or a real phone number.
 
@@ -422,7 +422,7 @@ Click **Load sample shipment**, then click **Build plan**. The sample is synthet
 
 - **Demo URL:** https://app-vert-five-97.vercel.app
 - **Login:** No login is implemented. Public URL: https://app-vert-five-97.vercel.app.
-- **Video:** [TBD]
+- **Video:** https://youtu.be/ytUPLzPD_G8
 - **Track:** Best Apps & Agents
 - **Cost to test:** Free (Vercel Hobby).
 - **Rate limit:** Not implemented in this build.

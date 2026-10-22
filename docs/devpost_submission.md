@@ -244,7 +244,7 @@ Next.js 14.2.15, React 18.3.1, TypeScript 5.5.4, plain CSS, Nebius Token Factory
 
 - **Live demo:** https://app-vert-five-97.vercel.app
 - **Source code:** https://github.com/Hwemo-Chung/hakobu
-- **Demo video (YouTube, under 3:00):** [TBD]
+- **Demo video (YouTube, under 3:00):** https://youtu.be/ytUPLzPD_G8
 - **Track:** Best Apps & Agents
 - **License:** MIT
 - **Judge access:** No login is implemented. Public URL: https://app-vert-five-97.vercel.app.
@@ -300,7 +300,7 @@ Rate limits and 402/out-of-credit behavior, streaming, server-side JSON schema e
 - **Keys are not in the repo.** All API keys are server-side environment variables. `.env*` files are gitignored, and the repo is checked with a secret scanner before release.
 - **Model prices** are from the Nebius Token Factory public catalog as of October 2026 and can change. The app reads model IDs from environment overrides ; cost figures in this document are computed from measured token usage × these prices.
 - **Video:** public on YouTube, under 3:00, English narration, no copyrighted music.
-- **Links:** demo https://app-vert-five-97.vercel.app, repository https://github.com/Hwemo-Chung/hakobu; video URL is [TBD].
+- **Links:** demo https://app-vert-five-97.vercel.app, repository https://github.com/Hwemo-Chung/hakobu; video https://youtu.be/ytUPLzPD_G8.
 
 
 
