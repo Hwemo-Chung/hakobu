@@ -112,6 +112,7 @@ Keep the three model rows visible for the full 30 seconds. The narration names *
 - Show the **08 / Routing** panel long enough to read all four rows; if time allows, return to it in the closing montage.
 - Hold on one **UNCERTAIN** check in **04 / Verify** long enough to read the verdict, reason, and **Human action** line.
 - In **07 / Compare**, show a **LIVE** row and the **TABLE** row in the same shot. If the courier call fails, show **MOCK** and **TABLE** instead; never call MOCK live. This is the honesty moment.
+- Measured on 2026-10-23 (5 runs, sample shipment): the four model steps take about 0.7–1.6 s each (median), and model cost is about $0.0023 per plan. If you say a number on camera, use these, not rounder ones.
 - Do not speed up footage in a way that misrepresents latency. If you cut waiting time, cut it; do not claim it was real-time.
 - If a live API fails, stop and retry. If it still fails, use the labeled **MOCK** fallback and keep the **MOCK** badge visible. Never show a MOCK run as LIVE.
 

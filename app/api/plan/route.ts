@@ -312,7 +312,8 @@ function toStepLog(run: RunStepResult<unknown>, label: string): StepLog {
     model: run.result.model,
     mode: run.result.mode,
     latencyMs: run.result.latencyMs,
-    note: run.result.note
+    note: run.result.note,
+    usage: run.result.usage
   };
 }
 
@@ -329,7 +330,8 @@ async function runStep<T>(options: {
     role: options.role,
     system: options.system,
     user: options.user,
-    mockText: options.mockText
+    mockText: options.mockText,
+    maxTokens: 3000
   });
 
   let data = parseJsonObject(result.text);
@@ -546,7 +548,8 @@ export async function POST(request: Request) {
           `Items: ${JSON.stringify(items)}`,
           "Return 2-3 plausible candidate headings per distinct item. Use 6-digit headings with a dot, for example 6912.00.",
           "JSON shape: {\"candidates\":[{\"item\":string,\"code\":string,\"description\":string,\"rationale\":string,\"confidence\":\"high\"|\"medium\"|\"low\"}],\"notes\":string}.",
-          "Confidence must reflect missing composition or intended-use evidence. The sender confirms the final code."
+          "Confidence must reflect missing composition or intended-use evidence. The sender confirms the final code.",
+          "Be concise: each rationale and description under 25 words."
         ].join("\n"),
         mockText: hsMockText
       }),
@@ -653,7 +656,8 @@ export async function POST(request: Request) {
           PACK.items.map(({ id, label, sourceUrl }) => ({ id, label, sourceUrl }))
         )}`,
         "JSON shape: {\"verdict\":\"supported\"|\"uncertain\"|\"contradicted\",\"checks\":[{\"field\":string,\"verdict\":\"supported\"|\"uncertain\"|\"contradicted\",\"reason\":string,\"humanAction\":string}],\"summary\":string}.",
-        "Include checks for prohibited status, HS candidates, and address. Preserve any contradiction rather than overwriting the generator output."
+        "Include checks for prohibited status, HS candidates, and address. Preserve any contradiction rather than overwriting the generator output.",
+        "Be concise: at most 6 checks, each reason under 25 words."
       ].join("\n"),
       mockText: verificationMockText
     });

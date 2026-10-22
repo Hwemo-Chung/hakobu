@@ -120,6 +120,7 @@ export interface StepLog {
   mode: LlmMode;
   latencyMs: number;
   note?: string;
+  usage?: { promptTokens: number; completionTokens: number };
 }
 
 export interface EtaEstimate {

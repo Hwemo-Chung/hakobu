@@ -95,7 +95,10 @@ export async function callLlm(options: CallLlmOptions): Promise<LlmResult> {
           { role: "user", content: options.user }
         ],
         temperature: options.temperature ?? 0.2,
-        max_tokens: options.maxTokens ?? 1400
+        max_tokens: options.maxTokens ?? 1400,
+        // Nemotron 3 reasons by default; reasoning tokens consumed the whole
+        // budget and truncated the JSON, so structured steps run without it.
+        chat_template_kwargs: { enable_thinking: false }
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(25_000)

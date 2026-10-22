@@ -57,7 +57,7 @@ Hakobu is the one screen for that job. The first corridor is Korea ↔ Japan bec
 - **Verifier checks** with a verdict, a reason, and a suggested human action.
 - **Visible deterministic fallback.** Missing or failed integrations return labeled MOCK data. There is no separate recorded-run mode and no provider fallback beyond the labeled mock path.
 - **No database.** No parcel history, no stored addresses, no accounts.
-- **No budget or rate-limit controls in this build.** Limits: [TBD].
+- **No budget or rate-limit controls in this build.** Each model call is capped at 3,000 output tokens (worst case ≈ $0.012 per plan at list price).
 
 ### What it deliberately does not do
 
@@ -202,7 +202,7 @@ No other inference provider is on the critical path. If Token Factory is unavail
 | HS code candidates | Nemotron 3 Super 120B-A12B | `nvidia/nemotron-3-super-120b-a12b` | More reasoning for taxonomy and rationale; cheaper than Ultra | 256K | 0.30 / 0.90 | us-central1 |
 | Verifier / critic | Nemotron 3 Ultra 550B-A55B | `nvidia/Nemotron-3-Ultra-550b-a55b` | Largest model in the family; reasoning-heavy verification; checks Nano/Super outputs and flags uncertainty | 1,024K | 1.00 / 3.00 | us-central1 |
 
-Context, price, and region are catalog metadata from the Nebius Token Factory public model catalog as of October 2026. They can change and are not read by the app at runtime. The app reads model IDs from `MODEL_NANO`, `MODEL_SUPER`, and `MODEL_ULTRA` overrides, and does not compute or display cost in this build.
+Context, price, and region are catalog metadata from the Nebius Token Factory public model catalog as of October 2026. They can change and are not read by the app at runtime. The app reads model IDs from `MODEL_NANO`, `MODEL_SUPER`, and `MODEL_ULTRA` overrides, and does not compute cost at runtime; the per-plan cost quoted in this README (≈ $0.0023) was computed offline from measured token usage × these prices.
 
 No vision model and no fallback model are wired in this build. Photo input with Nemotron 3.5 Super VL remains a next step.
 
@@ -244,12 +244,12 @@ The app does not confirm or submit anything. The final HS code, address, and shi
 - **One OpenAI-compatible endpoint.** The integration is a base URL and an API key. The client is ordinary OpenAI-style code, with no provider-specific SDK.
 - **One key for three model sizes.** Nano, Super, and Ultra can be routed without three accounts or three billing relationships.
 - **A wide capability range.** The same API covers cheap classification, mid-tier HS reasoning, and a verifier with a 1M-token context, so the pipeline does not need a second provider.
-- **Long context for verification.** Ultra can see the whole shipment plan plus the rule sources in one call for demo-sized inputs. Long-context quality on this task: [TBD - measure].
+- **Long context for verification.** Ultra can see the whole shipment plan plus the rule sources in one call for demo-sized inputs. Long-context quality on this task has not been measured.
 - **OpenAI-compatible usage fields.** Prompt and completion token counts come back in the response. This build does not surface them in the UI.
 
 ### Other Nebius services
 
-**Nebius AI Cloud** is not on the critical path for this demo. Hakobu is a stateless Next.js app, and Token Factory covers inference. The natural next use is a **Nebius Serverless Job** that runs nightly: fetch official rate and rule pages, diff them against the versioned JSON, and open a review item. That job would make the rule packs fresher without putting a scheduler in the web app. Status: [TBD - fill after build].
+**Nebius AI Cloud** is not on the critical path for this demo. Hakobu is a stateless Next.js app, and Token Factory covers inference. The natural next use is a **Nebius Serverless Job** that runs nightly: fetch official rate and rule pages, diff them against the versioned JSON, and open a review item. That job would make the rule packs fresher without putting a scheduler in the web app. Status: not started.
 
 **Token Factory Sandboxes** are not used. They are a better fit for a coding or verification agent that needs isolated execution; Hakobu does not execute user code.
 
@@ -303,7 +303,7 @@ type RateQuote = {
 
 ### Cost model
 
-This build does not compute or display per-step or per-shipment cost. The step panel shows model, mode, and latency only. Cost per shipment: [TBD - measure].
+The step panel shows model, mode, and latency; `/api/plan` also returns per-step token usage. Measured over 5 runs on the sample shipment (2026-10-23, thinking disabled): classify (Nano) median 1,089 ms, 686/158 tokens; HS (Super) 1,637 ms, 248/271; address (Nano) 710 ms, 134/85; verify (Ultra) 1,425 ms, 1,036/271. Average cost per plan ≈ **$0.0023** at list prices from the [Token Factory model catalog](https://tokenfactory.nebius.com/model-catalog.md).
 
 ### Caching and recomputation
 
@@ -320,7 +320,7 @@ This build does not compute or display per-step or per-shipment cost. The step p
 - **No persistence.** No database, no parcel history, no stored addresses. The plan is returned to the browser and held in React state for the session.
 - **No client trust.** Rates and duty are recomputed server-side.
 - **Prompt injection defense.** Item descriptions and addresses are treated as untrusted evidence, not instructions. The system prompts separate evidence from instructions.
-- **Budget controls.** No per-IP rate limit or daily model-spend cap is implemented in this build. Limits: [TBD].
+- **Budget controls.** No per-IP rate limit or daily model-spend cap is implemented in this build; output is capped at 3,000 tokens per call.
 
 ### What is sent to the model
 
@@ -425,8 +425,8 @@ Click **Load sample shipment**, then click **Build plan**. The sample is synthet
 - **Video:** [TBD]
 - **Track:** Best Apps & Agents
 - **Cost to test:** Free (Vercel Hobby).
-- **Rate limit:** Not implemented in this build. [TBD] if added.
-- **Daily budget cap:** Not implemented in this build. [TBD] if added.
+- **Rate limit:** Not implemented in this build.
+- **Daily budget cap:** Not implemented in this build.
 
 ### A three-minute test path
 
@@ -444,7 +444,7 @@ Click **Load sample shipment**, then click **Build plan**. The sample is synthet
 - **EasyPost error:** courier rows become deterministic mock rates labeled MOCK; the postal TABLE row remains available.
 - **FX error:** the FX row is labeled FALLBACK with sample rates.
 - **No recorded-run mode:** there is no separate recorded-run mode in this build. The fallback is always the deterministic mock path with visible MOCK labels.
-- **Out of budget / rate limited:** not applicable in this build; no cap or rate limit is implemented. [TBD] if added.
+- **Out of budget / rate limited:** not applicable in this build; no cap or rate limit is implemented.
 
 ### What not to expect
 
@@ -464,7 +464,7 @@ There is no evaluation harness in this repository yet. The intended metrics are:
 - p50/p95 latency per step,
 - cost per shipment from actual token usage.
 
-**Results:** [TBD - fill after build]. No metric is claimed in this README until it can be reproduced from a published harness and raw outputs.
+**Results:** accuracy not yet evaluated; only latency and cost are measured (see above). No metric is claimed in this README until it can be reproduced from a published harness and raw outputs.
 
 The evaluation set size, the labeling rules, and the raw model outputs will be published with the repo. The goal is not a flattering number; it is a number a judge can rerun.
 

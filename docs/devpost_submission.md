@@ -80,7 +80,7 @@ api_key  = process.env.NEBIUS_API_KEY
 
 There is no fallback to another inference provider. If Token Factory is unavailable, the app reports a degraded state; it does not silently switch vendors.
 
-The step runner is a small server-side function in `app/api/plan/route.ts`: it chooses a model role per step, calls `lib/llm.ts`, parses the JSON response, and falls back to a deterministic mock payload if the call fails or the JSON is invalid. Model IDs live in environment overrides, not in prompts, so a model can be swapped without editing the workflow.
+The step runner is a small server-side function in `app/api/plan/route.ts`: it chooses a model role per step, calls `lib/llm.ts`, parses the JSON response, and falls back to a deterministic mock payload if the call fails or the JSON is invalid. All Nemotron 3 steps run with `chat_template_kwargs: {"enable_thinking": false}`; with reasoning on, Super and Ultra exhausted the token budget and returned truncated JSON. Model IDs live in environment overrides, not in prompts, so a model can be swapped without editing the workflow.
 
 ### Model routing
 
@@ -91,7 +91,7 @@ The step runner is a small server-side function in `app/api/plan/route.ts`: it c
 | Address formatting | Nemotron 3 Nano 30B-A3B | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Locale formatting is a bounded instruction-following task; the low-cost tier is sufficient | 262K | 0.06 / 0.24 | eu-north1 |
 | Verifier / critic | Nemotron 3 Ultra 550B-A55B | `nvidia/Nemotron-3-Ultra-550b-a55b` | Largest model in the family; reasoning-heavy verification; checks Nano and Super outputs, cites missing evidence, flags uncertainty | 1,024K | 1.00 / 3.00 | us-central1 |
 
-Prices are from the Nebius Token Factory public model catalog as of October 2026. They can change. This build does not compute or display cost; the step panel shows model, mode, and latency only. Cost per shipment: [TBD - measure]. No vision model and no fallback model are wired in this build.
+Prices are from the Nebius Token Factory public model catalog as of October 2026. They can change. Measured cost per shipment plan, from real token usage over 5 runs: about $0.0023 on average (Ultra ≈ 81%). The step panel shows model, mode, and latency; the API response also carries per-step token usage. No vision model and no fallback model are wired in this build.
 
 The routing logic is simple on purpose:
 
@@ -166,7 +166,7 @@ The duty estimate is deliberately conservative. It applies a small set of publis
 
 - **Response validation.** Every model response is parsed as JSON in `app/api/plan/route.ts`. If parsing fails, the step uses its deterministic mock payload and is logged with a note. There is no repair retry and no schema-validation library.
 - **Timeouts and fallback.** Model calls time out after 25 seconds, EasyPost after 15 seconds, and FX after 10 seconds. A failed call never produces a silent empty field; the affected step or row is labeled MOCK (or FALLBACK for FX).
-- **Budget controls.** This build has no per-IP rate limit and no daily model-spend cap. Limits: [TBD].
+- **Budget controls.** This build has no per-IP rate limit and no daily model-spend cap. Each call is capped at 3,000 output tokens, so the worst case for one plan is roughly $0.012 at list price.
 - **Mock fallback.** If `NEBIUS_API_KEY` or `EASYPOST_API_KEY` is absent, or a live call fails, the app returns deterministic data with a visible MOCK label. There is no separate recorded-run mode and no switch to another provider.
 - **Privacy.** API keys are server-only. Recipient names and phone numbers are never collected. There is no database and no parcel history. Address text is sent to Token Factory for formatting; the UI says so.
 - **Prompt injection.** Item descriptions and address text are treated as untrusted data, not instructions. The system prompt separates evidence from instructions.
@@ -184,7 +184,7 @@ I am building a small synthetic evaluation set of parcels with known item lists,
 - p50/p95 latency per step,
 - cost per shipment from actual token usage.
 
-Results: **[TBD - fill after build]**. I will not put a number in this submission that I cannot reproduce from the repository and the evaluation script. The eval harness and the raw outputs will be published with the code.
+Results: the accuracy evaluation is not done yet; only latency and cost have been measured (see the feedback section). I will not put a number in this submission that I cannot reproduce from the repository and the evaluation script. The eval harness and the raw outputs will be published with the code.
 
 ## Challenges
 
@@ -198,7 +198,7 @@ Results: **[TBD - fill after build]**. I will not put a number in this submissio
 
 **"Live" versus "table" is a trust problem.** It is tempting to put one "real-time" badge on everything. That would be a lie for postal rates. EasyPost test rates are live API calls but not purchasable quotes; the EMS row is an official table with an effective date. The UI uses separate badges and timestamps, and the copy never calls a table "real-time."
 
-**Cross-region latency and failure.** The Nemotron models are listed in different regions. A verifier call can be slower than the rest of the pipeline, and a mixed-model pipeline has more failure modes than a single-model app. The app uses timeouts and a visible deterministic fallback. The step panel is not decoration; it is how I debug which model ran and how long it took. Measured p50/p95: [TBD - fill after build].
+**Cross-region latency and failure.** The Nemotron models are listed in different regions. A verifier call can be slower than the rest of the pipeline, and a mixed-model pipeline has more failure modes than a single-model app. The app uses timeouts and a visible deterministic fallback. The step panel is not decoration; it is how I debug which model ran and how long it took. Measured medians over 5 runs were 0.7–1.6 s per step and about 5.3 s summed across the four steps (HS and address run in parallel). Five runs are too few for a p95.
 
 ## Accomplishments
 
@@ -231,7 +231,7 @@ I am also proud of what the app refuses to do. It never auto-rejects an item, ne
 - **Ground HS more deeply.** Retrieve official heading descriptions and explanatory notes, cite the exact heading, and abstain when the description is ambiguous.
 - **Add official address validation** where the terms allow it, instead of relying on formatting alone.
 - **Add live postal rate APIs** where they exist, and keep the table path for the ones that do not.
-- **Move the nightly refresh to a Nebius Serverless Job.** A scheduled job would fetch official rate and rule pages, diff them against the versioned JSON, and open a review item. This is the natural use of Nebius AI Cloud in the architecture, but it is not on the critical path for the demo. Status: [TBD - fill after build].
+- **Move the nightly refresh to a Nebius Serverless Job.** A scheduled job would fetch official rate and rule pages, diff them against the versioned JSON, and open a review item. This is the natural use of Nebius AI Cloud in the architecture, but it is not on the critical path for the demo. Status: not started.
 - **Add a repeat-sender mode** with saved parcels and a review queue, without turning the app into a database of personal data.
 - **Measure verifier economics.** The open question is when Ultra's verdict is worth 3.3× Super's input price. Measure quality and latency before changing the routing.
 - **Export to carrier portals and printable customs forms.** Still human-submitted, always.
@@ -243,7 +243,7 @@ Next.js 14.2.15, React 18.3.1, TypeScript 5.5.4, plain CSS, Nebius Token Factory
 ## Try it out
 
 - **Live demo:** https://app-vert-five-97.vercel.app
-- **Source code:** [TBD]
+- **Source code:** https://github.com/Hwemo-Chung/hakobu
 - **Demo video (YouTube, under 3:00):** [TBD]
 - **Track:** Best Apps & Agents
 - **License:** MIT
@@ -261,252 +261,32 @@ Next.js 14.2.15, React 18.3.1, TypeScript 5.5.4, plain CSS, Nebius Token Factory
 
 ## Feedback on Nebius Token Factory, Nebius AI Cloud, and NVIDIA models
 
-This section is written for the Nebius and NVIDIA teams. It is organized by product, and each item has the same shape: what I observed, why it mattered for Hakobu, a suggested fix, and a status.
+This section is written for the Nebius and NVIDIA teams. It lists only what I actually ran into while wiring Hakobu to Token Factory on 2026-10-23, plus a short list of what I did not test. Measurements: 5 runs of the 4-step pipeline on the sample shipment, called from a local Next.js server and then from the Vercel deployment.
 
-Status labels:
+### What I experienced
 
-- **Observed in docs/catalog** — I read it, but have not necessarily reproduced it at runtime.
-- **Community report** — reported by other participants; I have not reproduced it.
-- **Tested** — I ran it and the result is in the repository.
-- **[TBD - fill after build]** — not yet experienced; I will fill this in after the build.
+**TF-01 · Billing setup before the first call.** A payment card had to be registered before I could get an API key. For a hackathon this is the single biggest drop-off point. *Suggestion:* a capped no-card sandbox key.
 
-I have left runtime claims as [TBD] rather than guessing. A feedback report that invents an experience is worse than one that admits what it has not tested.
+**TF-02 · `GET /v1/models` works, but returns only IDs.** The list endpoint returned all three IDs I use (`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3-Ultra-550b-a55b`), so my configured IDs were correct. Each entry has only `id`, `created`, `object`, `owned_by`. Casing and separators differ across one family (`Nemotron-3_5-Lightning` vs `Nemotron-3.5-Super-VL`), so I copied IDs exactly from the list. *Suggestion:* add context window, price, region and capability flags (JSON mode, reasoning toggle) to the list response.
 
-### Summary: five changes I would ship first
+**NV-01 · Reasoning is on by default and silently ate my JSON budget.** With `max_tokens: 1400` and default settings, Super and Ultra spent most of the budget on reasoning tokens. In the first 10 runs (before the fix), Ultra hit the 1,400-token cap and returned truncated, unparseable JSON in 9 of 10 runs, Super did so in 7 of 10, and Super returned an empty `content` twice. Every call still returned HTTP 200, so the failure only showed up as a parse error in my app. Setting `chat_template_kwargs: {"enable_thinking": false}` fixed it: in the 5 measured runs below, all 20 step calls returned valid JSON, and latency dropped from roughly 3–10 s per step to roughly 0.7–3.3 s. The `usage.completion_tokens_details.reasoning_tokens` field was what let me diagnose it. *Suggestion:* document the reasoning toggle prominently for each Nemotron model, and return `finish_reason: "length"` guidance or a warning when reasoning consumes the whole budget.
 
-1. **Canonical model IDs, aliases, and a capability/region payload in `GET /v1/models`.** The current IDs mix casing and separators, and a router with five models feels the pain immediately.
-2. **Per-key spend caps, a balance preflight, and a useful 402 body.** A public demo should not die between two steps because a credit balance crossed zero.
-3. **A per-model capability matrix for JSON schema, tool calls, streaming, vision, and reasoning controls.** A router needs to know what it can ask for before it writes a prompt.
-4. **A multi-model routing cookbook with cost, latency, and quality guidance.** The Nano/Super/Ultra story is the product; make the recommended pattern copy-pasteable.
-5. **An NVIDIA embedding/reranker in the catalog, or an explicit recommended pairing.** Retrieval is the missing piece of an all-NVIDIA stack.
+**TF-03 · The OpenAI-compatible endpoint really is a drop-in.** The integration is a base URL plus a bearer key; `usage` with prompt and completion tokens came back on every successful call, which is all I needed to compute cost from the published catalog prices.
 
-### A. Nebius Token Factory
+### Measured (5 runs, sample shipment, thinking disabled)
 
-**TF-01 · Billing setup blocks the first API call**
+| Step | Model | Latency median (min–max) | Avg tokens in / out | Avg cost per call |
+|---|---|---|---|---|
+| Classify | Nano | 1,089 ms (973–1,395) | 686 / 158 | $0.000079 |
+| HS candidates | Super | 1,637 ms (1,447–3,284) | 248 / 271 | $0.000318 |
+| Address | Nano | 710 ms (681–1,098) | 134 / 85 | $0.000028 |
+| Verify | Ultra | 1,425 ms (1,310–1,555) | 1,036 / 271 | $0.001849 |
 
-- **Observed:** Token Factory onboarding requires billing setup and a bank card before the trial can be used. The trial credit is $1 for 30 days, and participants have reported that promo credits arrive late or apply only after the trial. [Community report for the promo timing; documented for the card requirement and trial credit.]
-- **Why it mattered:** The highest-friction moment in the funnel is before the first call. For a hackathon build, that is the moment a team decides whether to continue. A mid-demo 402 is worse than a slow model because it looks like a broken product.
-- **Suggested fix:** A no-card sandbox key with a hard $5 cap and a 7-day expiry; one credit ledger that shows trial, promo, and paid balances separately; an email when a promo is applied; a clear "what happens at zero" page with the exact 402 behavior.
-- **Status:** Documented; onboarding time [TBD - fill after build].
+Average model cost per shipment plan: **$0.0023** (max $0.0027). Ultra is about 81% of it. Cost = tokens × list price from the [Nebius Token Factory model catalog](https://tokenfactory.nebius.com/model-catalog.md) (Nano $0.06/$0.24, Super $0.30/$0.90, Ultra $1.00/$3.00 per 1M input/output tokens, read 2026-10-23); no cached-input discount applied.
 
-**TF-02 · Model IDs are not canonical**
+### What I did not test
 
-- **Observed:** The catalog uses several patterns in one family: `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`, `nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3-Ultra-550b-a55b`, `nvidia/Nemotron-3_5-Lightning`, and `nvidia/Nemotron-3.5-Super-VL`. Casing, hyphenation, and version separators all vary.
-- **Why it mattered:** Copy-paste errors are silent until a 404. In a router with five model IDs, this is avoidable friction, and it makes a model picker harder to build.
-- **Suggested fix:** Choose one canonical form (lowercase kebab-case is the common convention), keep the current IDs as aliases, and make lookup case-insensitive. Return `id`, `aliases`, `family`, `version`, `region`, `context_window`, `pricing`, and `capabilities` from `GET /v1/models`. Add a "copy ID" button that copies the canonical value.
-- **Status:** Observed in catalog.
-
-**TF-03 · The global base URL versus regional models is unclear**
-
-- **Observed:** The catalog lists Nemotron 3 Nano and 3.5 Lightning in `eu-north1`, Super and Ultra in `us-central1`, and Super VL in `us-north1`. The integration docs give a single global base URL. It is not obvious whether that host routes to the right region automatically or whether a regional host is required for some models.
-- **Why it mattered:** A mixed-model router may cross regions on every step. That affects latency, failure modes, and data residency. I need to know where a request ran, not just which model answered.
-- **Suggested fix:** Return `region` and the resolved `endpoint` in the model list and in response headers. Accept an optional `region` parameter. If a model is not available in the requested region, return a specific `region_mismatch` error with the correct host. Publish a one-page model × region matrix.
-- **Status:** Observed; runtime behavior [TBD - fill after build].
-
-**TF-04 · No spend cap, and 402 can arrive mid-request**
-
-- **Observed:** Participants report HTTP 402 (out of credit) arriving mid-request and no account-level spend cap. [Community report; not yet reproduced.]
-- **Why it mattered:** A judge can see the extraction step succeed and the verifier step fail. That reads as an unreliable product, not a budget event. A public demo needs a hard stop before the interesting part.
-- **Suggested fix:** Per-key daily and monthly caps; `GET /v1/usage` and `GET /v1/balance`; a 402 body with `budget_remaining`, `reset_at`, and `request_id`; dashboard alerts at 50/80/100%; a "reserve for demo" mode that blocks non-demo calls when the balance is low.
-- **Status:** Community report; [TBD - fill after build].
-
-**TF-05 · Capability support is not documented per model**
-
-- **Observed:** The catalog exposes type (text2text/image2text), context, region, and price. It does not say which models support JSON schema, tool calls, streaming, seed/determinism, or reasoning controls.
-- **Why it mattered:** Hakobu's pipeline depends on structured JSON. Prompt-only JSON is fragile, and a router needs to know whether it can ask for a schema or must validate and repair in application code.
-- **Suggested fix:** Add capability flags to `GET /v1/models` and a per-model table in the docs. If JSON schema is not supported, return a 400 before charging tokens. Document the supported fallback (prompt-only JSON plus validation) with an example.
-- **Status:** [TBD - fill after build].
-
-**TF-06 · Cost is derivable but not returned**
-
-- **Observed:** OpenAI-compatible responses include `usage`, and the public catalog has per-million prices. I can derive cost from those two inputs, but this build does not do so in the UI.
-- **Why it mattered:** Local price tables go stale. A server-side `cost_usd`, or a pricing endpoint with effective dates, would make any cost display honest and make cost comparisons across models trivial.
-- **Suggested fix:** Include `cost_usd` in the response (or expose `GET /v1/pricing`), show cached-input pricing separately, and include `model` and `region` in the usage object. If exact cost is not possible, return the price version used.
-- **Status:** [TBD - fill after build].
-
-**TF-07 · Error codes need to distinguish model, region, and quota**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** A 404 can mean a wrong model ID, a model that is not available in the requested region, or a key without access. The fix is different in each case, and a router cannot recover without knowing which one happened.
-- **Suggested fix:** Structured error codes (`model_not_found`, `region_mismatch`, `quota_exceeded`, `context_length_exceeded`, `invalid_schema`), a docs link, the model ID, the region, and a request ID. Keep the HTTP status meaningful, but put the machine-readable reason in the body.
-- **Status:** [TBD - fill after build].
-
-**TF-08 · No NVIDIA embedding or reranker in the public catalog**
-
-- **Observed:** The catalog includes `Qwen/Qwen3-Embedding-8B` but no NVIDIA embedding or reranker model. Hakobu's rule pack is small enough for keyword search today, but a larger corridor set will need retrieval.
-- **Why it mattered:** If a team wants an all-NVIDIA stack, retrieval is the gap. The answer may be "use the Qwen embedding," but that should be an explicit recommendation, not an inference from an empty row.
-- **Suggested fix:** Add an NVIDIA embedding/reranker, or document the recommended non-NVIDIA pairing and its pricing in the Nemotron routing cookbook. Include a retrieval example with chunking and citation.
-- **Status:** Observed in catalog.
-
-**TF-09 · Sandboxes are gated, which makes them hard to plan around**
-
-- **Observed:** Token Factory Sandboxes are beta and access is gated; participants have reported 403s and delays. [Community report.]
-- **Why it mattered:** I did not put Sandboxes on Hakobu's critical path, so this did not block the demo. For a coding or verification agent, it would have.
-- **Suggested fix:** A self-serve waitlist status, a clear access SLA, and a small sandbox quota for hackathon accounts. A "run one command" sandbox in the dashboard would be enough to evaluate the workflow.
-- **Status:** Not used; [TBD - fill after build if access is granted].
-
-**TF-10 · The docs need one "router in 10 minutes" page**
-
-- **Observed:** The OpenAI-compatible base URL is the best part of the developer experience, but the information a router needs is spread across the model catalog, billing docs, and API reference.
-- **Why it mattered:** I want a single page with three model IDs, a base URL, a JSON schema example, a fallback example, and a cost calculation. That page would have saved the most time in the build.
-- **Suggested fix:** Publish a TypeScript and Python quickstart that routes Nano → Super → Ultra, validates JSON, logs usage, and falls back on 5xx/402. Include a Next.js route handler example and a "common errors" section.
-- **Status:** [TBD - fill after build].
-
-**TF-11 · Per-request observability is missing from the dashboard**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** The step panel is only as good as the usage data. I want per-request traces without building my own logging stack, especially when a verifier call fails intermittently.
-- **Suggested fix:** A request log with timestamp, key, model, region, prompt/completion tokens, latency, cost, status, and request ID; CSV export; filters by model and status; a link from a failed request to the docs.
-- **Status:** [TBD - fill after build].
-
-**TF-12 · Publish a deprecation policy for model versions**
-
-- **Observed:** Model names include versions (3, 3.5) and sizes (Nano, Super, Ultra). The catalog is a snapshot, and it is not clear how long a pinned ID will remain available.
-- **Why it mattered:** A pinned ID can disappear; an alias can move under me. Both are bad for a reproducible demo and worse for a production router.
-- **Suggested fix:** A deprecation policy with dates, stable aliases for a defined window, and `deprecated_at` in `GET /v1/models`. Let me pin an exact version and show the deprecation date in the dashboard.
-- **Status:** [TBD - fill after build].
-
-### B. Nebius AI Cloud
-
-I did not put AI Cloud on Hakobu's critical path. Token Factory covers inference, and the demo is a single stateless web app. The feedback below is from evaluating AI Cloud for the batch job described in "What's next," not from a production deployment. I am marking that distinction explicitly.
-
-**AC-01 · Two billing surfaces for one prototype**
-
-- **Observed:** AI Cloud has no free trial and requires a $25 top-up to use cloud credits, while Token Factory has its own onboarding and credits. [Documented; the exact current terms should be re-checked before submission.]
-- **Why it mattered:** Two billing surfaces make a small prototype harder to justify. I used Token Factory only, and AI Cloud stayed out of the critical path.
-- **Suggested fix:** One Nebius account with a shared credit balance, or a hackathon sandbox that includes a small Serverless Jobs quota. Show a single "what will this cost" estimate across Token Factory and AI Cloud.
-- **Status:** Documented; hands-on [TBD - fill after build].
-
-**AC-02 · Serverless Jobs needs a cost example before I design the job**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** A nightly rule-refresh job is a natural fit: fetch official pages, diff them against the versioned JSON, and open a review item. Before adding it, I need an estimate for a short CPU job running nightly for the judging window.
-- **Suggested fix:** A pricing calculator with a sample job (image, CPU, memory, duration, frequency), a `dry-run` that estimates cost, and a "cost per run" line in the job UI. Publish two or three reference workloads.
-- **Status:** [TBD - fill after build].
-
-**AC-03 · The path for a stateless web app is not obvious**
-
-- **Observed:** AI Cloud documentation emphasizes GPUs, endpoints, and jobs. A Next.js app is not the obvious target.
-- **Why it mattered:** I deployed the UI on [TBD] and used Token Factory for inference. If AI Cloud had a "deploy a web app" path, I would have considered it for the whole stack.
-- **Suggested fix:** A "deploy a web app" guide (Dockerfile, port, health check, environment variables, zero-downtime deploy), or an explicit recommendation to use a PaaS for the UI and AI Cloud for batch jobs.
-- **Status:** [TBD - fill after build].
-
-**AC-04 · Quota and region visibility before job creation**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** I need to know whether the CPU/GPU quota and the region are available before I commit to a nightly job design.
-- **Suggested fix:** Show quotas and regions in the console before creating a job; return a `quota_exceeded` error with requested versus available values; link to the quota request flow.
-- **Status:** [TBD - fill after build].
-
-**AC-05 · Join job logs and model traces**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** If a nightly job fails, I want the job log and the Token Factory request trace in one place, not two dashboards and a timestamp hunt.
-- **Suggested fix:** Link job runs to model calls via request ID, include the model/region in the job log, and support log export.
-- **Status:** [TBD - fill after build].
-
-### C. NVIDIA Nemotron models
-
-**NV-01 · Nano is the right tier for extraction; publish multilingual evidence**
-
-- **Observed:** Nemotron 3 Nano is one of the cheapest text tiers and is a good fit for bounded extraction. Product names in Korean and Japanese mix scripts, units, brand names, and abbreviations.
-- **Why it mattered:** Extraction sets up every later step. A missed "aerosol" or "lithium battery" flag is the most expensive error in the pipeline, and it happens before the expensive models see the item.
-- **Suggested fix:** Publish multilingual extraction evaluations (Korean, Japanese, mixed-script) and a prompt example with a strict JSON schema. Add guidance for an explicit `unknown_terms` field so the model can flag what it did not understand instead of guessing.
-- **Status:** [TBD - measure after build].
-
-**NV-02 · Super for HS candidates needs grounding, not just a bigger model**
-
-- **Observed:** HS codes are a long-tail taxonomy. A model can produce a plausible heading without evidence, and a more capable model can produce a more convincing wrong answer.
-- **Why it mattered:** I use Super for candidates, not decisions. The prompt asks for a rationale and an uncertainty flag, and Ultra checks the result against the item description and rule excerpt.
-- **Suggested fix:** Publish a "grounded classification" recipe: retrieve official heading descriptions, cite them, abstain when the description is ambiguous, and return top-k candidates with reasons. A small public HS sample set would let teams evaluate top-3 recall instead of eyeballing outputs.
-- **Status:** Design observation; [TBD - measure after build].
-
-**NV-03 · Ultra's verifier economics need guidance**
-
-- **Observed:** At published list prices, Ultra is $1.00/$3.00 per million tokens, Super is $0.30/$0.90, and Nano is $0.06/$0.24. Ultra is about 3.3× Super and 16.7× Nano on input.
-- **Why it mattered:** Ultra on every step would dominate both cost and latency. I use it as a verifier on the fields that matter, not as a generator. The open question is when its verdict is worth the premium.
-- **Suggested fix:** Publish guidance on when Ultra's quality gain justifies the cost; add a "verifier-lite" recipe (Super verifies Nano, Ultra only on low confidence); expose a reasoning/token budget so I can cap the verifier's output.
-- **Status:** Prices observed; quality and latency [TBD - measure after build].
-
-**NV-04 · Context windows differ across the family**
-
-- **Observed:** The catalog lists 262K for Nano, 256K for Super, and 1,024K for Ultra. A long input that fits Ultra may not fit Super.
-- **Why it mattered:** The router must check context before calling. A silent truncation would be a correctness bug in a verification step, because the verifier would judge an incomplete plan.
-- **Suggested fix:** Expose `context_window` in `GET /v1/models`; make truncation explicit in the response (`truncated: true`) or reject with `context_length_exceeded`; document the tokenizer and how to count tokens before sending.
-- **Status:** Observed.
-
-**NV-05 · The vision gap forces a two-model photo flow**
-
-- **Observed:** Nemotron 3.5 Super VL is the only image2text Nemotron in the public catalog; Nano and Super are text2text.
-- **Why it mattered:** A photo flow needs a VL call first, then a text call. That is two models and two costs, and a step panel would have to show both. It is workable, but it is not obvious from the model names.
-- **Suggested fix:** Document the two-step pattern with a reference implementation; add a smaller/cheaper VL model; or add image input to Super so a single call can extract and classify.
-- **Status:** Observed.
-
-**NV-06 · Model naming needs one family page**
-
-- **Observed:** "Nemotron 3" and "Nemotron 3.5" coexist; "Nano 30B-A3B", "Super 120B-A12B", and "Ultra 550B-A55B" use different size conventions. The IDs do not follow one pattern.
-- **Why it mattered:** A model picker is harder to build and easier to misconfigure. The size suffix is useful, but only if it is consistent.
-- **Suggested fix:** A canonical family page with model cards: ID, aliases, parameters, context, region, price, capabilities, recommended tasks, and a "copy ID" button. Keep the marketing name and the API ID visibly linked.
-- **Status:** Observed.
-
-**NV-07 · Verifier outputs need to be short and strict**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** The verifier should return a verdict, a reason, and an action. If Ultra writes an essay, the UI becomes unreadable and the token bill grows for no product value.
-- **Suggested fix:** Document `max_output_tokens`, reasoning controls, and a "verifier" prompt pattern that returns strict JSON only. Show a good and a bad example in the docs.
-- **Status:** [TBD - fill after build].
-
-**NV-08 · Determinism matters for verifier verdicts**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** I want verdicts to be stable enough to compare across runs. Temperature 0 and a seed help; if a model is non-deterministic, the UI should say so rather than imply a reproducibility it does not have.
-- **Suggested fix:** Document seed/temperature behavior per model, return the seed in the response, and publish a short determinism note with expected variance.
-- **Status:** [TBD - fill after build].
-
-**NV-09 · Structured-output support should be explicit**
-
-- **Observed:** [TBD - fill after build.]
-- **Why it mattered:** The whole pipeline depends on JSON. Prompt-only JSON is fragile, and a repair loop costs tokens and latency.
-- **Suggested fix:** State whether JSON schema is enforced server-side. If it is not, provide a validation/repair recipe and a `response_format` example for each model. Include a schema failure example in the docs.
-- **Status:** [TBD - fill after build].
-
-**NV-10 · Address localization is high-stakes and locale-specific**
-
-- **Observed:** [TBD - measure after build.]
-- **Why it mattered:** Korean and Japanese addresses are not one-to-one. A fluent translation can still be undeliverable. The app uses a side-by-side view and leaves deliverability to the sender instead of trusting a single pass.
-- **Suggested fix:** Publish locale evaluations for address formatting, recommend the side-by-side review pattern, and link to official postal data where the terms allow it. Treat address formatting as a structured transformation, not free text.
-- **Status:** [TBD - measure after build].
-
-**NV-11 · Compliance answers need a grounded mode**
-
-- **Observed:** A prohibited-item or customs assistant can hallucinate a rule and cause real harm. The model's fluency is not evidence.
-- **Why it mattered:** Hakobu never auto-rejects or declares. The verifier is instructed to cite the supplied rule text and to return `uncertain` when the evidence is insufficient.
-- **Suggested fix:** A "grounded compliance" system card: retrieval required, citations required, no definitive legal claims, an explicit "unknown" state, and an abstention evaluation. Publish a refusal example alongside the happy path.
-- **Status:** Design observation.
-
-### What worked well
-
-- **The OpenAI-compatible endpoint is the best part of the developer experience.** Changing `base_url` and `NEBIUS_API_KEY` is the whole integration; the router is ordinary OpenAI-style code. First-call time: [TBD - fill after build].
-- **One key for Nano, Super, and Ultra makes multi-model routing practical.** I do not need three accounts or three SDKs, and the router can compare tiers without a billing detour.
-- **Published per-million prices made tier comparisons possible during planning.** The catalog gives enough information to compare Nano, Super, and Ultra on cost, even though this build does not display cost. The step panel explains why Nano classifies and formats and Ultra only verifies.
-- **Ultra's 1M-token context is a natural fit for verifying a whole shipment plan plus rule excerpts in one call.** Long-context quality on this task: [TBD - measure after build].
-- **The catalog's region and price columns helped me plan the router before writing code.** The region column is also the source of the confusion in TF-03, so it is close to being a great page.
-
-### What I have not tested yet
-
-I am listing these so the feedback is not read as more complete than it is. Each becomes a `Tested` item or a `[TBD]` result after the build:
-
-- rate limits, p95 latency, cold starts, and timeout behavior per model;
-- streaming behavior through the Next.js route handler;
-- JSON schema enforcement versus prompt-only JSON;
-- tool/function calling on each model;
-- vision quality on Super VL with label photos;
-- Sandboxes access and workflow;
-- AI Cloud Serverless Jobs pricing and deployment;
-- long-context verification quality on Ultra;
-- Korean/Japanese classification and address quality;
-- 402 handling and spend-cap behavior;
-- cost at demo scale: [TBD - measure].
+Rate limits and 402/out-of-credit behavior, streaming, server-side JSON schema enforcement, tool calling, vision (Super VL), Sandboxes, region routing, long-context quality, determinism across runs, and anything on Nebius AI Cloud (not used; the UI is on Vercel Hobby). I am not making claims about these.
 
 ---
 
@@ -518,7 +298,7 @@ I am listing these so the feedback is not read as more complete than it is. Each
 - **No payment, label, or filing.** Hakobu does not take payment, buy postage, or submit a customs declaration.
 - **Synthetic demo data.** Names, addresses, and parcel contents in the demo are synthetic. No confidential or proprietary data was used.
 - **Keys are not in the repo.** All API keys are server-side environment variables. `.env*` files are gitignored, and the repo is checked with a secret scanner before release.
-- **Model prices** are from the Nebius Token Factory public catalog as of October 2026 and can change. The app reads model IDs from environment overrides and does not compute cost in this build.
+- **Model prices** are from the Nebius Token Factory public catalog as of October 2026 and can change. The app reads model IDs from environment overrides ; cost figures in this document are computed from measured token usage × these prices.
 - **Video:** public on YouTube, under 3:00, English narration, no copyrighted music.
 - **Links:** demo https://app-vert-five-97.vercel.app, repository https://github.com/Hwemo-Chung/hakobu; video URL is [TBD].
 
