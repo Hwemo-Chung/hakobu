@@ -400,7 +400,9 @@ function ResultContent({ result }: { result: PlanResponse }) {
                     <span className="source-name">{rate.source}</span>
                     {rate.basis === "table" ? (
                       <span className="warn">
-                        Effective {rate.effectiveFrom} · verified: {String(rate.verified)}
+                        Effective {rate.effectiveFrom}
+                        {rate.verifiedAt ? ` · checked ${rate.verifiedAt}` : ""} · verified:{" "}
+                        {String(rate.verified)}
                       </span>
                     ) : rate.basis === "live" ? (
                       <span>EasyPost test mode · {shortTime(rate.fetchedAt)}</span>
@@ -421,7 +423,7 @@ function ResultContent({ result }: { result: PlanResponse }) {
           {tableRate && (
             <p>
               <span className="badge table">TABLE</span>
-              {tableRate.note} Values are samples and must be verified ({tableRate.sourceUrl}).
+              {tableRate.note} Source: {tableRate.sourceUrl}
             </p>
           )}
           {hasLive && (

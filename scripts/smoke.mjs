@@ -149,6 +149,11 @@ async function main() {
       plan.rates.some((rate) => rate.basis === "table"),
       "Expected at least one table-based postal rate."
     );
+    const emsRate = plan.rates.find((rate) => rate.basis === "table");
+    assert(
+      emsRate.priceOriginal === 2500 && emsRate.currency === "JPY",
+      `Expected official Japan Post EMS zone-1 price 2500 JPY for 1.2 kg, got ${emsRate.priceOriginal} ${emsRate.currency}.`
+    );
     assert(
       plan.steps.every(
         (step) =>

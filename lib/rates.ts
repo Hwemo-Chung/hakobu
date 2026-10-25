@@ -12,6 +12,8 @@ interface PostalRow {
 }
 
 interface PostalTable {
+  label: string;
+  verifiedAt?: string;
   carrier: string;
   service: string;
   currency: "JPY" | "KRW";
@@ -302,11 +304,12 @@ export function getPostalRate(
     currency: table.currency,
     etaDays: { min: row.etaMin, max: row.etaMax },
     basis: "table",
-    source: `${table.carrier} EMS — ${postalFile.label}`,
+    source: `${table.carrier} EMS — ${table.label}`,
     sourceUrl: table.sourceUrl,
     fetchedAt,
     effectiveFrom: table.effectiveFrom,
-    verified: false,
-    note: `${postalFile.label}. Table value, not live. Sample rate; verify before use (verified: false).`
+    verified: table.verified,
+    verifiedAt: table.verifiedAt,
+    note: `${table.label}. Table value, not real-time. ${table.note}`
   };
 }

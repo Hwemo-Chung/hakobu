@@ -1,49 +1,340 @@
 {
-  "label": "公式料金表 기준",
-  "effectiveFrom": "2026-04-01",
+  "label": "EMS table (per-table labels below)",
+  "effectiveFrom": "see each table",
   "verified": false,
   "sourceUrl": "https://www.post.japanpost.jp/int/charge/list/ems_all.html",
-  "note": "Sample EMS table values for the hackathon demo. Table-based, not live. Values are examples and must be verified against the official Japan Post and Korea Post rate tables before use.",
+  "note": "JP->KR: official Japan Post EMS zone-1 prices (verified 2026-10-26). KR->JP: SAMPLE values, not official or verified. Table-based, not real-time.",
   "tables": {
     "JP->KR": {
       "carrier": "Japan Post",
       "service": "EMS",
       "currency": "JPY",
-      "effectiveFrom": "2026-04-01",
-      "verified": false,
+      "effectiveFrom": "not stated on source page",
+      "verified": true,
       "sourceUrl": "https://www.post.japanpost.jp/int/charge/list/ems_all.html",
-      "note": "公式料金表 기준. Sample values only; verify at the official Japan Post EMS page.",
+      "note": "Prices are Japan Post's official EMS table, zone 1 (China/Korea/Taiwan), copied from the source page on 2026-10-26; the page states no effective date. Table-based, not real-time. ETA ranges are Hakobu's own sample estimates, not an official delivery standard.",
       "rows": [
-        { "maxKg": 0.5, "price": 1450, "etaMin": 3, "etaMax": 5 },
-        { "maxKg": 1.0, "price": 2150, "etaMin": 3, "etaMax": 5 },
-        { "maxKg": 1.5, "price": 2750, "etaMin": 3, "etaMax": 5 },
-        { "maxKg": 2.0, "price": 3350, "etaMin": 3, "etaMax": 5 },
-        { "maxKg": 3.0, "price": 4350, "etaMin": 4, "etaMax": 6 },
-        { "maxKg": 5.0, "price": 6150, "etaMin": 4, "etaMax": 6 },
-        { "maxKg": 10.0, "price": 10150, "etaMin": 5, "etaMax": 8 },
-        { "maxKg": 20.0, "price": 16550, "etaMin": 5, "etaMax": 8 },
-        { "maxKg": 30.0, "price": 22950, "etaMin": 6, "etaMax": 9 }
-      ]
+        {
+          "maxKg": 0.5,
+          "price": 1450,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 0.6,
+          "price": 1600,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 0.7,
+          "price": 1750,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 0.8,
+          "price": 1900,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 0.9,
+          "price": 2050,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 1.0,
+          "price": 2200,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 1.25,
+          "price": 2500,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 1.5,
+          "price": 2800,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 1.75,
+          "price": 3100,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 2.0,
+          "price": 3400,
+          "etaMin": 3,
+          "etaMax": 5
+        },
+        {
+          "maxKg": 2.5,
+          "price": 3900,
+          "etaMin": 4,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 3.0,
+          "price": 4400,
+          "etaMin": 4,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 3.5,
+          "price": 4900,
+          "etaMin": 4,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 4.0,
+          "price": 5400,
+          "etaMin": 4,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 4.5,
+          "price": 5900,
+          "etaMin": 4,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 5.0,
+          "price": 6400,
+          "etaMin": 4,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 5.5,
+          "price": 6900,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 6.0,
+          "price": 7400,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 7.0,
+          "price": 8200,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 8.0,
+          "price": 9000,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 9.0,
+          "price": 9800,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 10.0,
+          "price": 10600,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 11.0,
+          "price": 11400,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 12.0,
+          "price": 12200,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 13.0,
+          "price": 13000,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 14.0,
+          "price": 13800,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 15.0,
+          "price": 14600,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 16.0,
+          "price": 15400,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 17.0,
+          "price": 16200,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 18.0,
+          "price": 17000,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 19.0,
+          "price": 17800,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 20.0,
+          "price": 18600,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 21.0,
+          "price": 19400,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 22.0,
+          "price": 20200,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 23.0,
+          "price": 21000,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 24.0,
+          "price": 21800,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 25.0,
+          "price": 22600,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 26.0,
+          "price": 23400,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 27.0,
+          "price": 24200,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 28.0,
+          "price": 25000,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 29.0,
+          "price": 25800,
+          "etaMin": 6,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 30.0,
+          "price": 26600,
+          "etaMin": 6,
+          "etaMax": 9
+        }
+      ],
+      "label": "公式料金表 기준 (Japan Post, 제1지대: 韓国)",
+      "verifiedAt": "2026-10-26"
     },
     "KR->JP": {
       "carrier": "Korea Post",
       "service": "EMS",
       "currency": "KRW",
-      "effectiveFrom": "2026-04-01",
+      "effectiveFrom": "unknown (sample)",
       "verified": false,
       "sourceUrl": "https://www.koreapost.go.kr/",
-      "note": "公式料金表 기준. Sample Korea Post EMS values only; verify at the official Korea Post page.",
+      "note": "SAMPLE values only, not official Korea Post rates and not verified. Table-based, not real-time.",
       "rows": [
-        { "maxKg": 0.5, "price": 20300, "etaMin": 3, "etaMax": 6 },
-        { "maxKg": 1.0, "price": 24600, "etaMin": 3, "etaMax": 6 },
-        { "maxKg": 1.5, "price": 29000, "etaMin": 3, "etaMax": 6 },
-        { "maxKg": 2.0, "price": 33400, "etaMin": 4, "etaMax": 7 },
-        { "maxKg": 3.0, "price": 42000, "etaMin": 4, "etaMax": 7 },
-        { "maxKg": 5.0, "price": 57000, "etaMin": 5, "etaMax": 8 },
-        { "maxKg": 10.0, "price": 91000, "etaMin": 5, "etaMax": 9 },
-        { "maxKg": 20.0, "price": 155000, "etaMin": 6, "etaMax": 10 },
-        { "maxKg": 30.0, "price": 219000, "etaMin": 6, "etaMax": 11 }
-      ]
+        {
+          "maxKg": 0.5,
+          "price": 20300,
+          "etaMin": 3,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 1.0,
+          "price": 24600,
+          "etaMin": 3,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 1.5,
+          "price": 29000,
+          "etaMin": 3,
+          "etaMax": 6
+        },
+        {
+          "maxKg": 2.0,
+          "price": 33400,
+          "etaMin": 4,
+          "etaMax": 7
+        },
+        {
+          "maxKg": 3.0,
+          "price": 42000,
+          "etaMin": 4,
+          "etaMax": 7
+        },
+        {
+          "maxKg": 5.0,
+          "price": 57000,
+          "etaMin": 5,
+          "etaMax": 8
+        },
+        {
+          "maxKg": 10.0,
+          "price": 91000,
+          "etaMin": 5,
+          "etaMax": 9
+        },
+        {
+          "maxKg": 20.0,
+          "price": 155000,
+          "etaMin": 6,
+          "etaMax": 10
+        },
+        {
+          "maxKg": 30.0,
+          "price": 219000,
+          "etaMin": 6,
+          "etaMax": 11
+        }
+      ],
+      "label": "샘플값 (Korea Post, 미검증)"
     }
   }
 }

@@ -1,6 +1,6 @@
 # Hakobu
 
-A lean one-screen preparation dashboard for **Korea ↔ Japan parcels**. The full concept, product reasoning, and demo script live in the [project README](../README.md).
+A lean one-screen preparation dashboard for **Korea ↔ Japan parcels**. The full concept, product reasoning, and demo script live in the [project README](docs/README.md).
 
 Enter a direction, an item list, a weight, and a destination address. Hakobu returns:
 
@@ -64,7 +64,7 @@ npm test         # smoke test; requires a build
 
 - **LIVE** rows are EasyPost test-mode API responses or a live FX response. They are not purchasable quotes.
 - **MOCK** rows are deterministic fallbacks for demo use. They are not quotes.
-- **TABLE** rows come from `data/jp_post_rates.json`, labeled **公式料金表 기준**. The values are samples, with `effectiveFrom` and `"verified": false`; verify them against the official [Japan Post EMS rate page](https://www.post.japanpost.jp/int/charge/list/ems_all.html) before use.
+- **TABLE** rows come from `data/jp_post_rates.json` and are table values, not real-time. **JP → KR** uses the official [Japan Post EMS rate table](https://www.post.japanpost.jp/int/charge/list/ems_all.html), zone 1 (Korea), all weight rows up to 30 kg, copied on 2026-10-26 (`"verified": true`; the source page states no effective date). ETA ranges in that table are Hakobu's own sample estimates. **KR → JP** (Korea Post) values are **SAMPLE values only**: not official, not verified (`"verified": false`).
 - The prohibited-item pack is a curated snapshot with source links. It is incomplete by design and changes over time.
 - Duty, HS, prohibited status, and ETA are estimates or hints, **not legal, tax, or customs advice**. The sender and importer remain responsible.
 
@@ -79,7 +79,7 @@ lib/fx.ts                 frankfurter.app with 10s timeout + fallback
 lib/rates.ts              EasyPost test API + postal table
 lib/duty.ts               rules-based duty estimate
 data/prohibited.json      curated prohibited/restricted snapshot
-data/jp_post_rates.json   table-based EMS samples
+data/jp_post_rates.json   EMS table: JP→KR official Japan Post zone 1; KR→JP sample
 scripts/smoke.mjs         end-to-end smoke test
 ```
 

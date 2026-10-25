@@ -109,6 +109,7 @@ export interface RateQuote {
   sourceUrl: string;
   fetchedAt: string;
   effectiveFrom?: string;
+  verifiedAt?: string;
   verified?: boolean;
   note?: string;
 }

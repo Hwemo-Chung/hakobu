@@ -41,7 +41,7 @@ Hakobu is the one screen for that job. The first corridor is Korea ↔ Japan bec
 
 5. **Format the address.** Nemotron 3 Nano converts the address into the destination format and supplies a romanized line. Original and converted addresses sit side by side. Recipient names and phone numbers are never collected. Formatting is a hint; deliverability is not validated.
 
-6. **Compare rates and ETA.** Courier rates come from the EasyPost test API and carry a **LIVE** badge with a timestamp, or a **MOCK** badge when no key is configured. One EMS postal row comes from `data/jp_post_rates.json`: Japan Post for JP → KR and Korea Post for KR → JP, always labeled **TABLE** with an effective date and `verified: false`. FX comes from frankfurter.app and is labeled **LIVE** or **FALLBACK**. Prices are normalized to JPY and KRW and sorted by JPY equivalent. No rate is purchasable from Hakobu.
+6. **Compare rates and ETA.** Courier rates come from the EasyPost test API and carry a **LIVE** badge with a timestamp, or a **MOCK** badge when no key is configured. One EMS postal row comes from `data/jp_post_rates.json`: Japan Post for JP → KR and Korea Post for KR → JP, always labeled **TABLE** with its effective-date/checked-date and `verified` flag. JP → KR uses the official Japan Post zone-1 table (`verified: true`); KR → JP is a **sample** (`verified: false`). FX comes from frankfurter.app and is labeled **LIVE** or **FALLBACK**. Prices are normalized to JPY and KRW and sorted by JPY equivalent. No rate is purchasable from Hakobu.
 
 7. **Review the plan.** The `08 / Routing` model/step panel logs the model, mode, and latency for each of the four model calls. Verifier verdicts sit next to the fields they checked. The plan stays in the browser session; the app never submits it.
 
@@ -125,26 +125,26 @@ Browser
 
 | Path | Responsibility |
 |---|---|
-| `app/app/Dashboard.tsx` | Client form, numbered result cards, verifier checks, rate table, model/step panel |
-| `app/app/api/plan/route.ts` | Validates the request and orchestrates the four model steps, rules, duty, rates, and response |
-| `app/app/page.tsx` | Server page; reads the integration booleans for the LIVE/MOCK pills |
-| `app/app/layout.tsx` | Root layout and metadata |
-| `app/app/globals.css` | Plain CSS for the entire UI |
-| `app/lib/llm.ts` | Nebius Token Factory client, model selection, timeout, and deterministic mock fallback |
-| `app/lib/rates.ts` | EasyPost test adapter plus the postal EMS table |
-| `app/lib/duty.ts` | Rules-based duty and tax estimate with thresholds and assumptions |
-| `app/lib/fx.ts` | frankfurter.app adapter with 10-second timeout and fallback rates |
-| `app/lib/types.ts` | Shared request/response types |
-| `app/data/prohibited.json` | Curated prohibited/restricted snapshot with source URLs |
-| `app/data/jp_post_rates.json` | Table-based Japan Post / Korea Post EMS samples |
-| `app/scripts/smoke.mjs` | End-to-end smoke test against a production build |
+| `app/Dashboard.tsx` | Client form, numbered result cards, verifier checks, rate table, model/step panel |
+| `app/api/plan/route.ts` | Validates the request and orchestrates the four model steps, rules, duty, rates, and response |
+| `app/page.tsx` | Server page; reads the integration booleans for the LIVE/MOCK pills |
+| `app/layout.tsx` | Root layout and metadata |
+| `app/globals.css` | Plain CSS for the entire UI |
+| `lib/llm.ts` | Nebius Token Factory client, model selection, timeout, and deterministic mock fallback |
+| `lib/rates.ts` | EasyPost test adapter plus the postal EMS table |
+| `lib/duty.ts` | Rules-based duty and tax estimate with thresholds and assumptions |
+| `lib/fx.ts` | frankfurter.app adapter with 10-second timeout and fallback rates |
+| `lib/types.ts` | Shared request/response types |
+| `data/prohibited.json` | Curated prohibited/restricted snapshot with source URLs |
+| `data/jp_post_rates.json` | EMS table: JP→KR official Japan Post zone 1 (checked 2026-10-26); KR→JP Korea Post sample values |
+| `scripts/smoke.mjs` | End-to-end smoke test against a production build |
 
 ### Repository layout
 
-The runnable Next.js app lives in `app/` inside the `hakobu` repository:
+The runnable Next.js app is the root of the `hakobu` repository (the Next.js App Router folder is `app/`):
 
 ```text
-app/
+hakobu/
 ├── app/
 │   ├── Dashboard.tsx
 │   ├── api/plan/route.ts
@@ -154,6 +154,10 @@ app/
 ├── data/
 │   ├── jp_post_rates.json
 │   └── prohibited.json
+├── docs/
+│   ├── README.md
+│   ├── demo_script.md
+│   └── devpost_submission.md
 ├── lib/
 │   ├── duty.ts
 │   ├── fx.ts
@@ -266,10 +270,10 @@ No other Nebius service is required to run the demo. I am listing AI Cloud becau
 | Duty / tax | Rules module + FX | `ESTIMATE` | Per request | Amount, assumptions, threshold, official link |
 | Address | Nemotron 3 Nano | `AI FORMATTED` | Per request | Original vs formatted, romanized line |
 | Courier rate / ETA | EasyPost test API | `LIVE` / `MOCK` | Per request, no cache | Price, ETA, timestamp, "test rate" |
-| Postal rate / ETA | Japan Post / Korea Post EMS table | `TABLE` | Manual, versioned | Price, ETA, effective date, `verified: false` |
+| Postal rate / ETA | Japan Post / Korea Post EMS table | `TABLE` | Manual, versioned | Price, ETA, effective/checked date, `verified` flag (JP→KR true, KR→JP false) |
 | FX | frankfurter.app | `LIVE` / `FALLBACK` | Per request, no cache | Rate and date |
 
-Official source URLs are stored in `data/*.json` next to `effectiveFrom` and a human-readable note. The postal table is explicitly marked `"verified": false`; the values are samples and must be checked against the official Japan Post or Korea Post page before use.
+Official source URLs are stored in `data/*.json` next to `effectiveFrom` and a human-readable note. The JP → KR postal table holds the official Japan Post EMS zone-1 (Korea) prices, copied on 2026-10-26 (`"verified": true`; the source page states no effective date; the ETA ranges are Hakobu's own sample estimates). The KR → JP table is explicitly marked `"verified": false`: those are SAMPLE values, not official Korea Post rates.
 
 ### The live/table distinction
 
@@ -478,7 +482,7 @@ Hakobu is a hackathon prototype. It is not a customs broker, freight forwarder, 
 - **HS candidates are not binding.** The app ranks candidates and shows its reasoning; it does not classify goods definitively. A wrong code can cause delays, fees, or seizure.
 - **Prohibited/quarantine rules change.** The rule pack is a snapshot with source links. It may be incomplete or stale. Always check the official page and the carrier before shipping.
 - **EasyPost test mode.** Rates and ETAs are test API responses, not purchasable quotes. They may not match a real account, negotiated rate, fuel surcharge, or remote-area fee.
-- **Postal table.** Postal rates come from a sample EMS table, not a live API. The table has an effective date, is marked `verified: false`, and may lag a revision. It does not model every surcharge or option.
+- **Postal table.** Postal rates come from an EMS table, not a live API. JP → KR holds the official Japan Post zone-1 prices as copied on 2026-10-26 and may lag a revision; KR → JP holds sample values marked `verified: false`. It does not model every surcharge or option.
 - **FX.** frankfurter.app provides a reference rate, not the rate a card or bank will use. The fallback rates are samples.
 - **ETA.** Carrier estimates and postal ranges do not model customs delays, weather, or peak season.
 - **LLM errors.** Models can misread an item, miss a risk signal, or produce a plausible wrong candidate. The verifier reduces this risk; it does not eliminate it. Human confirmation is required.
