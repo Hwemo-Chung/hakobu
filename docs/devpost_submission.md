@@ -7,6 +7,10 @@
 
 ---
 
+**For judges, in six lines.** Technology: Nano/Super/Ultra routed per step on Nebius Token Factory, Ultra as a visible verifier, `enable_thinking:false` found to be required. Design: the whole shipment plan on one screen with LIVE/MOCK/TABLE badges. Impact: 4.28 million foreign residents in Japan, 408,682 of them Korean nationals. Idea: turning uncertainty into the product — candidates, sources, and an explicit "I don't know". Try it: open the demo, submit the pre-filled sample parcel, and read the 08 / Routing panel. Honest status: the carrier rows in the public demo are MOCK (no EasyPost key); the EMS row is an official-table value.
+
+---
+
 ## Inspiration
 
 I live in Tokyo and send parcels to family in Korea. The box is usually small — tea, a mug, a birthday present, sometimes sunscreen — but the questions around it are bigger than the box.
@@ -17,7 +21,7 @@ I have answered those questions in three browser tabs, a notes app, and a calcul
 
 That is the gap Hakobu fills. It is not a shipping chatbot and it is not a customs broker. It is the one screen I wanted: it prepares the shipment, shows its sources, marks what it does not know, and stops for a human decision.
 
-The audience is not abstract. Japan counted 4.28 million foreign residents at the end of June 2026 (Immigration Services Agency of Japan). Many of us send care packages, documents, and gifts across a border and learn the paperwork by trial and error. The same problem faces small sellers who ship a few parcels a week and cannot afford a full logistics back office.
+The audience is not abstract. Japan counted 4.28 million foreign residents at the end of June 2026 (Immigration Services Agency of Japan). Of them, 408,682 hold Korean nationality, the third-largest group (same source: https://www.moj.go.jp/isa/publications/press/13_00070.html). Many of us send care packages, documents, and gifts across a border and learn the paperwork by trial and error. The same problem faces small sellers who ship a few parcels a week and cannot afford a full logistics back office.
 
 Hakobu starts with Korea ↔ Japan because that is the corridor I know personally. The architecture is deliberately corridor-agnostic: rule packs, rate adapters, and model prompts are separate layers, so adding another country is a data and adapter problem rather than a rewrite.
 
@@ -43,7 +47,7 @@ The demo runs **Japan → Korea**: a small parcel from Tokyo to Seoul containing
 
 5. **Format the address.** Nemotron 3 Nano converts the address into the destination format and supplies a romanized line. The original and converted addresses sit side by side. The app does not validate deliverability and does not submit anything. Recipient names and phone numbers are never collected.
 
-6. **Compare rates and ETA.** Courier rates and ETA come from the EasyPost test API and carry a **LIVE** badge with a timestamp, or a **MOCK** badge when no key is configured. One EMS postal row comes from `data/jp_post_rates.json` — Japan Post for JP → KR, Korea Post for KR → JP — and carries a **TABLE** badge. JP → KR is Japan Post's official EMS zone-1 table (checked 2026-10-26, `verified: true`; the sample 1.2 kg parcel is JPY 2,500); KR → JP is still a SAMPLE table, labeled unverified (`verified: false`). FX comes from frankfurter.app and is labeled **LIVE** or **FALLBACK**. The comparison normalizes prices to JPY and KRW and sorts by JPY equivalent, with an ETA range. No rate is purchasable from Hakobu.
+6. **Compare rates and ETA.** Courier rates and ETA come from the EasyPost test API and carry a **LIVE** badge with a timestamp, or a **MOCK** badge when no key is configured. One EMS postal row comes from `data/jp_post_rates.json` and carries a **TABLE** badge. For JP → KR the table holds the official Japan Post EMS prices for zone 1 (Korea), checked against the Japan Post page on 2026-10-26 (`verified: true`; the source page states no effective date, and the ETA ranges are my own estimates because the official table has none). The KR → JP table (Korea Post) is still a SAMPLE and is labeled `verified: false`. In the public demo deployment no EasyPost key is configured, so the UPS, FedEx and DHL rows currently show **MOCK**; the four model steps are **LIVE**. FX comes from frankfurter.app and is labeled **LIVE** or **FALLBACK**. The comparison normalizes prices to JPY and KRW and sorts by JPY equivalent, with an ETA range. No rate is purchasable from Hakobu.
 
 7. **Review the plan.** The `08 / Routing` model/step panel shows the model, mode, and latency for each of the four model calls. Verifier verdicts sit next to the fields they checked. The plan stays in the browser session; the app does not store, submit, or export it.
 
