@@ -1,0 +1,854 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-26T01:55:25.026Z",
+    "script": "scripts/verifier_seeded_eval.mjs",
+    "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "endpointHost": "api.tokenfactory.nebius.com",
+    "params": {
+      "temperature": 0.2,
+      "max_tokens": 3000,
+      "enable_thinking": false,
+      "timeoutMs": 25000
+    },
+    "runsPerCase": 2,
+    "priceUsdPer1M": {
+      "input": 1,
+      "output": 3
+    },
+    "nCases": 10,
+    "note": "Synthetic generator outputs fed straight to the Ultra verifier prompt copied from app/api/plan/route.ts. Not a whole-pipeline evaluation."
+  },
+  "results": [
+    {
+      "id": "S1-wrong-hs-ceramic",
+      "kind": "seeded_wrong_hs",
+      "expectedVerdict": "contradicted",
+      "targetField": "hs",
+      "seed": "Ceramic teacup candidates are knit cotton T-shirt codes (6109.10, 6109.90).",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1657,
+          "promptTokens": 797,
+          "completionTokens": 200,
+          "costUsd": 0.001397,
+          "finishReason": "stop",
+          "overallVerdict": "contradicted",
+          "targetFieldVerdict": "contradicted",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "supported",
+              "reason": "No curated rule match; low risk flagged",
+              "humanAction": "Confirm with customs and carrier"
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "contradicted",
+              "reason": "Ceramic item mapped to textile HS codes",
+              "humanAction": "Reclassify under ceramics heading 6911/6912"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean format correct; romanization plausible",
+              "humanAction": "Verify recipient name and phone separately"
+            }
+          ],
+          "summary": "Prohibited status and address supported; HS candidates contradicted due to material mismatch."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1363,
+          "promptTokens": 797,
+          "completionTokens": 248,
+          "costUsd": 0.001541,
+          "finishReason": "stop",
+          "overallVerdict": "contradicted",
+          "targetFieldVerdict": "contradicted",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "supported",
+              "reason": "No curated rule match; low risk flagged.",
+              "humanAction": "Confirm with Korea Customs and carrier."
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "contradicted",
+              "reason": "HS codes 6109.10/6109.90 are for knitted cotton/other textile vests, not ceramics.",
+              "humanAction": "Re-classify under ceramics headings (e.g., 6911/6912)."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean address format correct; postal code 04001 matches Seoul Mapo-gu.",
+              "humanAction": "Verify recipient name and phone with shipper."
+            }
+          ],
+          "summary": "Prohibited status low risk; HS codes contradicted (textile vs ceramics); address format supported."
+        }
+      ]
+    },
+    {
+      "id": "S2-wrong-hs-sunscreen",
+      "kind": "seeded_wrong_hs",
+      "expectedVerdict": "contradicted",
+      "targetField": "hs",
+      "seed": "Sunscreen candidates are smartphone / toy codes (8517.13, 9503.00).",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1226,
+          "promptTokens": 802,
+          "completionTokens": 208,
+          "costUsd": 0.001426,
+          "finishReason": "stop",
+          "overallVerdict": "contradicted",
+          "targetFieldVerdict": "contradicted",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; confirm with customs",
+              "humanAction": "Verify with Korea Customs and carrier"
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "contradicted",
+              "reason": "Codes 8517.13 and 9503.00 mismatch cosmetics",
+              "humanAction": "Assign correct HS code for sunscreen lotion"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean postal standards",
+              "humanAction": "Add recipient name and phone number"
+            }
+          ],
+          "summary": "HS codes incorrect for cosmetics; prohibited status unconfirmed; address format valid but incomplete."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1294,
+          "promptTokens": 802,
+          "completionTokens": 248,
+          "costUsd": 0.001546,
+          "finishReason": "stop",
+          "overallVerdict": "contradicted",
+          "targetFieldVerdict": "contradicted",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "uncertain",
+              "reason": "No curated rule match found; official confirmation needed",
+              "humanAction": "Verify with Korea Customs and carrier for cosmetics import rules"
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "contradicted",
+              "reason": "HS codes 8517.13 (smartphones) and 9503.00 (toys) mismatch sunscreen lotion",
+              "humanAction": "Assign correct HS code for cosmetics (likely 3304.99)"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean address format correct: city, district, street, postal code, country",
+              "humanAction": "Add recipient name and phone number for delivery"
+            }
+          ],
+          "summary": "Prohibited status uncertain; HS codes contradicted (wrong categories); address format supported but incomplete."
+        }
+      ]
+    },
+    {
+      "id": "S3-wrong-hs-tshirt",
+      "kind": "seeded_wrong_hs",
+      "expectedVerdict": "contradicted",
+      "targetField": "hs",
+      "seed": "Cotton T-shirt candidates are ceramic tableware codes (6912.00, 6911.10).",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1292,
+          "promptTokens": 778,
+          "completionTokens": 225,
+          "costUsd": 0.001453,
+          "finishReason": "stop",
+          "overallVerdict": "contradicted",
+          "targetFieldVerdict": "contradicted",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "supported",
+              "reason": "No curated rule match found for cotton t-shirt",
+              "humanAction": "Confirm with official customs sources and carrier"
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "contradicted",
+              "reason": "Ceramic codes assigned to cotton apparel item",
+              "humanAction": "Reclassify under HS 6109 or 6110 for cotton t-shirts"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean address format follows city-district-street-postal code",
+              "humanAction": "Verify recipient name and phone with sender"
+            }
+          ],
+          "summary": "HS classification contradicted: ceramic codes incorrectly assigned to cotton t-shirt. Prohibited status shows no rule match. Address format is correct."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1305,
+          "promptTokens": 778,
+          "completionTokens": 226,
+          "costUsd": 0.001456,
+          "finishReason": "stop",
+          "overallVerdict": "contradicted",
+          "targetFieldVerdict": "contradicted",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "supported",
+              "reason": "No curated rule match found for cotton T-shirt",
+              "humanAction": "Confirm with Korea Customs and carrier"
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "contradicted",
+              "reason": "Ceramic codes assigned to cotton apparel item",
+              "humanAction": "Reclassify under HS 6109 or 6110 for cotton T-shirts"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean address format follows city-district-street-postal code order",
+              "humanAction": "Verify recipient name and phone with sender"
+            }
+          ],
+          "summary": "HS classification contradicted: ceramic codes incorrectly assigned to cotton T-shirt. Prohibited status shows no rule match. Address format is correct."
+        }
+      ]
+    },
+    {
+      "id": "S4-missing-hazard-powerbank",
+      "kind": "seeded_missing_hazard",
+      "expectedVerdict": "contradicted",
+      "targetField": "prohibited",
+      "seed": "Portable charger 10000mAh (lithium battery pack) classified low-risk, no flag (the rule aliases do not contain 'charger'/'mAh').",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1245,
+          "promptTokens": 757,
+          "completionTokens": 215,
+          "costUsd": 0.001402,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; verify with customs and carrier.",
+              "humanAction": "Confirm lithium battery rules with Korea Customs and Japan Post."
+            },
+            {
+              "field": "hsCode",
+              "verdict": "uncertain",
+              "reason": "HS 8507.60 plausible but not verified; confirm classification.",
+              "humanAction": "Validate HS code with Korea Customs tariff database."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean convention; postal code valid.",
+              "humanAction": "Add recipient name and phone for delivery."
+            }
+          ],
+          "summary": "Prohibited status and HS code uncertain; address format correct. Verify battery regulations and tariff classification with official sources."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1228,
+          "promptTokens": 757,
+          "completionTokens": 224,
+          "costUsd": 0.001429,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; verify with customs and carrier.",
+              "humanAction": "Confirm lithium battery shipping rules with Japan Post and Korea Customs."
+            },
+            {
+              "field": "hsCode",
+              "verdict": "uncertain",
+              "reason": "HS 8507.60 plausible but not verified against tariff schedule.",
+              "humanAction": "Validate HS code 8507.60 with Korea Customs tariff database."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean convention: city, district, street, postal code.",
+              "humanAction": "Confirm recipient name and phone are added before shipping."
+            }
+          ],
+          "summary": "Prohibited status and HS code need official verification; address format is correct."
+        }
+      ]
+    },
+    {
+      "id": "S5-missing-hazard-liquid",
+      "kind": "seeded_missing_hazard",
+      "expectedVerdict": "contradicted",
+      "targetField": "prohibited",
+      "seed": "Flammable liquid (acetone nail polish remover, 200 ml) classified low-risk, no flag.",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1303,
+          "promptTokens": 757,
+          "completionTokens": 218,
+          "costUsd": 0.001411,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; acetone flammability not assessed",
+              "humanAction": "Confirm with carrier and Korea Customs if acetone-based remover is allowed"
+            },
+            {
+              "field": "hsCode",
+              "verdict": "supported",
+              "reason": "3304.30 matches manicure/pedicure preparations",
+              "humanAction": "Verify HS code with customs broker"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Formatted address follows Korean postal standards",
+              "humanAction": "Add recipient name and phone number for shipping label"
+            }
+          ],
+          "summary": "Prohibited status uncertain due to flammable liquid classification; HS code and address format appear correct. Carrier confirmation required for acetone-based product."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1240,
+          "promptTokens": 757,
+          "completionTokens": 205,
+          "costUsd": 0.001372,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; acetone flammability not assessed",
+              "humanAction": "Confirm with carrier and Korea Customs if acetone-based remover is allowed"
+            },
+            {
+              "field": "hsCode",
+              "verdict": "supported",
+              "reason": "3304.30 fits manicure/pedicure preparations",
+              "humanAction": "Verify HS code with customs broker"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Formatted address follows Korean conventions",
+              "humanAction": "Add recipient name and phone number"
+            }
+          ],
+          "summary": "Prohibited status uncertain due to flammable liquid; HS code and address format appear correct."
+        }
+      ]
+    },
+    {
+      "id": "S6-missing-hazard-food",
+      "kind": "seeded_missing_hazard",
+      "expectedVerdict": "contradicted",
+      "targetField": "prohibited",
+      "seed": "Dried fish snack (animal product, quarantine-relevant) classified low-risk, no flag (aliases do not contain 'fish').",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1152,
+          "promptTokens": 747,
+          "completionTokens": 195,
+          "costUsd": 0.001332,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; official confirmation needed",
+              "humanAction": "Confirm with Korea Customs and carrier"
+            },
+            {
+              "field": "hsCandidate",
+              "verdict": "supported",
+              "reason": "Code 0305.59 matches dried fish heading",
+              "humanAction": "Verify with customs broker"
+            },
+            {
+              "field": "addressFormat",
+              "verdict": "supported",
+              "reason": "Korean format correct: city, district, street, postal code",
+              "humanAction": "Add recipient name and phone"
+            }
+          ],
+          "summary": "Prohibited status uncertain; HS code plausible; address format correct but incomplete."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1288,
+          "promptTokens": 747,
+          "completionTokens": 207,
+          "costUsd": 0.001368,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; official confirmation needed",
+              "humanAction": "Verify with Korea Customs and Japan Post if dried fish snacks are permitted"
+            },
+            {
+              "field": "hsCode",
+              "verdict": "uncertain",
+              "reason": "HS 0305.59 plausible but not validated",
+              "humanAction": "Confirm HS classification with customs broker"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean address format correct",
+              "humanAction": "Add recipient name and phone number"
+            }
+          ],
+          "summary": "Dried anchovy snack lacks curated rule match; HS code plausible but unverified; address format correct but incomplete without recipient details."
+        }
+      ]
+    },
+    {
+      "id": "C1-control-ceramic",
+      "kind": "control",
+      "expectedVerdict": "not_contradicted",
+      "targetField": "hs",
+      "seed": "none (correct HS, correctly low-risk)",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1184,
+          "promptTokens": 795,
+          "completionTokens": 189,
+          "costUsd": 0.001362,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; official confirmation needed",
+              "humanAction": "Verify with Korea Customs and carrier"
+            },
+            {
+              "field": "hsCode",
+              "verdict": "uncertain",
+              "reason": "Material (porcelain vs other ceramic) unconfirmed",
+              "humanAction": "Confirm material composition for correct HS code"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean postal standards",
+              "humanAction": "Add recipient name and phone number"
+            }
+          ],
+          "summary": "Prohibited status and HS code uncertain; address format correct but incomplete."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1193,
+          "promptTokens": 795,
+          "completionTokens": 212,
+          "costUsd": 0.001431,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibitedStatus",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; official confirmation needed",
+              "humanAction": "Verify with Korea Customs and carrier for ceramic admissibility"
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "uncertain",
+              "reason": "Material (porcelain vs other ceramic) unconfirmed",
+              "humanAction": "Confirm material composition to select correct HS code"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean postal standards",
+              "humanAction": "Add recipient name and phone number for delivery"
+            }
+          ],
+          "summary": "Ceramic teacup set admissibility uncertain; HS code depends on unconfirmed material; address format valid but incomplete for shipping."
+        }
+      ]
+    },
+    {
+      "id": "C2-control-sunscreen",
+      "kind": "control",
+      "expectedVerdict": "not_contradicted",
+      "targetField": "hs",
+      "seed": "none (correct HS, correctly low-risk)",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1163,
+          "promptTokens": 799,
+          "completionTokens": 192,
+          "costUsd": 0.001375,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "supported",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; confirm with customs",
+              "humanAction": "Verify with Korea Customs and carrier"
+            },
+            {
+              "field": "hsCode",
+              "verdict": "supported",
+              "reason": "3304.99 matches skin-care preparations",
+              "humanAction": "Confirm HS code with broker"
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean postal standards",
+              "humanAction": "Add recipient name and phone"
+            }
+          ],
+          "summary": "Prohibited status uncertain; HS code 3304.99 supported; address format correct but incomplete."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1138,
+          "promptTokens": 799,
+          "completionTokens": 183,
+          "costUsd": 0.001348,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "supported",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; confirm with customs.",
+              "humanAction": "Verify with Korea Customs and carrier."
+            },
+            {
+              "field": "hsCode",
+              "verdict": "supported",
+              "reason": "3304.99 fits skin-care preparation.",
+              "humanAction": "Confirm HS code with broker."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean standard.",
+              "humanAction": "Add recipient name and phone."
+            }
+          ],
+          "summary": "Prohibited status uncertain; HS code plausible; address format correct but incomplete."
+        }
+      ]
+    },
+    {
+      "id": "C3-control-tshirt",
+      "kind": "control",
+      "expectedVerdict": "not_contradicted",
+      "targetField": "hs",
+      "seed": "none (correct HS, correctly low-risk)",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1375,
+          "promptTokens": 783,
+          "completionTokens": 256,
+          "costUsd": 0.001551,
+          "finishReason": "stop",
+          "overallVerdict": "supported",
+          "targetFieldVerdict": "supported",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "supported",
+              "reason": "No curated rule match found for cotton T-shirt.",
+              "humanAction": "Confirm with Korea Customs and carrier for final admissibility."
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "supported",
+              "reason": "Primary code 6109.10 fits knitted cotton T-shirt; 6205.20 alternative if woven.",
+              "humanAction": "Verify fabric construction (knitted vs woven) to select correct HS code."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Formatted address follows Korean convention: city, district, street, postal code, country.",
+              "humanAction": "Add recipient name and phone number for carrier label."
+            }
+          ],
+          "summary": "Cotton T-shirt classified as low risk with no prohibited matches. HS code 6109.10 primary for knitted cotton. Address formatted correctly for Korea. Confirm fabric type and add recipient details."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1160,
+          "promptTokens": 783,
+          "completionTokens": 187,
+          "costUsd": 0.001344,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "supported",
+          "checks": [
+            {
+              "field": "prohibited",
+              "verdict": "uncertain",
+              "reason": "No curated rule match; confirm with customs.",
+              "humanAction": "Verify with Korea Customs and carrier."
+            },
+            {
+              "field": "hsCandidates",
+              "verdict": "supported",
+              "reason": "6109.10 fits knitted cotton T-shirt.",
+              "humanAction": "Confirm fabric type with shipper."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Format follows Korean postal standard.",
+              "humanAction": "Add recipient name and phone."
+            }
+          ],
+          "summary": "HS code and address format supported; prohibited status uncertain, requires official confirmation."
+        }
+      ]
+    },
+    {
+      "id": "C4-control-powerbank-flagged",
+      "kind": "control",
+      "expectedVerdict": "not_contradicted",
+      "targetField": "prohibited",
+      "seed": "none (lithium power bank correctly flagged by the curated rule, correct HS)",
+      "runs": [
+        {
+          "run": 1,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1298,
+          "promptTokens": 760,
+          "completionTokens": 240,
+          "costUsd": 0.00148,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited_status",
+              "verdict": "uncertain",
+              "reason": "Lithium battery flagged needs_check; carrier approval and watt-hour limits unverified.",
+              "humanAction": "Confirm power bank Wh rating, airline/carrier acceptance, and packaging compliance."
+            },
+            {
+              "field": "hs_candidate",
+              "verdict": "supported",
+              "reason": "HS 8507.60 matches lithium-ion accumulators for rechargeable power bank.",
+              "humanAction": "Verify Wh rating for precise subheading if needed."
+            },
+            {
+              "field": "address_format",
+              "verdict": "supported",
+              "reason": "Korean address correctly formatted with city, district, street, postal code, country.",
+              "humanAction": "Add recipient name and phone number for shipping label."
+            }
+          ],
+          "summary": "Lithium power bank requires carrier approval and Wh verification; HS code appropriate; address format correct but incomplete for shipping."
+        },
+        {
+          "run": 2,
+          "ok": true,
+          "parsedJson": true,
+          "error": null,
+          "latencyMs": 1326,
+          "promptTokens": 760,
+          "completionTokens": 244,
+          "costUsd": 0.001492,
+          "finishReason": "stop",
+          "overallVerdict": "uncertain",
+          "targetFieldVerdict": "uncertain",
+          "checks": [
+            {
+              "field": "prohibited_status",
+              "verdict": "uncertain",
+              "reason": "Lithium battery flagged needs_check; carrier approval and watt-hour limits unverified.",
+              "humanAction": "Confirm power bank Wh rating ≤100Wh, installed in device, and carrier acceptance for air transport."
+            },
+            {
+              "field": "hs_candidate",
+              "verdict": "supported",
+              "reason": "HS 8507.60 matches lithium-ion accumulators for rechargeable power bank cells.",
+              "humanAction": "Verify Wh rating for customs classification accuracy."
+            },
+            {
+              "field": "address",
+              "verdict": "supported",
+              "reason": "Korean address format correct: city, district, street, postal code, country.",
+              "humanAction": "Add recipient name and phone number for customs clearance."
+            }
+          ],
+          "summary": "Lithium power bank requires carrier approval and Wh verification; HS code appropriate; address format valid but incomplete for shipping."
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "calls": 20,
+    "callsOk": 20,
+    "wrongHs": {
+      "cases": 3,
+      "runs": 6,
+      "hsFieldContradicted": 6,
+      "overallContradicted": 6,
+      "run1CasesCaught": 3
+    },
+    "missingHazard": {
+      "cases": 3,
+      "runs": 6,
+      "prohibitedFieldNotSupported": 6,
+      "prohibitedFieldContradicted": 0,
+      "overallNotSupported": 6,
+      "prohibitedFieldVerdicts": {
+        "uncertain": 6
+      },
+      "run1CasesNotSupported": 3
+    },
+    "controls": {
+      "cases": 4,
+      "runs": 8,
+      "overallVerdicts": {
+        "uncertain": 7,
+        "supported": 1
+      },
+      "overallContradicted": 0,
+      "overallNotSupported": 7,
+      "run1OverallNotSupported": 3,
+      "run1OverallContradicted": 0,
+      "hsControlsHsFieldVerdicts": {
+        "uncertain": 2,
+        "supported": 4
+      }
+    },
+    "prohibitedCheckOnUnflaggedItems": {
+      "note": "controls C1-C3 are ordinary low-risk items with no rule match; S4-S6 are hazardous items with no rule match",
+      "ordinaryItemsC1toC3": {
+        "uncertain": 5,
+        "supported": 1
+      },
+      "hazardItemsS4toS6": {
+        "uncertain": 6
+      }
+    },
+    "latencyMs": {
+      "min": 1138,
+      "median": 1266.5,
+      "max": 1657
+    },
+    "tokens": {
+      "avgPrompt": 778,
+      "avgCompletion": 216
+    },
+    "costUsd": {
+      "total": 0.0285,
+      "perCallAvg": 0.00143
+    }
+  }
+}

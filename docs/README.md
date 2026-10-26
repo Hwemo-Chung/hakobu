@@ -458,19 +458,21 @@ Hakobu does not issue a shipping label, take payment, file customs, or track a p
 
 ## Evaluation
 
-There is no evaluation harness in this repository yet. The intended metrics are:
+One small measurement exists: a seeded-error test of the Ultra verifier (10 synthetic cases, 2 runs each, n = 10). See [`EVALUATION.md`](EVALUATION.md), `scripts/verifier_seeded_eval.mjs` and the raw results in `scripts/results/verifier_seeded_eval.json`.
+
+- Wrong HS candidate (3 cases, 6 runs): HS check `contradicted` in 6 of 6 runs.
+- Missing hazard flag (3 cases, 6 runs): prohibited check `uncertain` in 6 of 6 runs, `contradicted` in 0 of 6. This is mostly the verifier's generic "no rule match, confirm" answer, which it also gave on 5 of 6 runs for ordinary items, so hazard detection is weak.
+- Controls with correct outputs (4 cases, 8 runs): overall `contradicted` in 0 of 8; `uncertain` 7 of 8.
+
+This is not the accuracy of the whole pipeline. The other intended metrics are not measured yet:
 
 - classification field accuracy (category, risk level, risk signals),
 - prohibited/quarantine flag recall, with `NEEDS CHECK` counted as a flag rather than a miss,
 - HS top-3 recall against a human-labeled reference,
 - address field accuracy after formatting,
-- verifier calibration (does `uncertain` correlate with incomplete or wrong generator output?),
-- p50/p95 latency per step,
-- cost per shipment from actual token usage.
+- p50/p95 latency per step.
 
-**Results:** accuracy not yet evaluated; only latency and cost are measured (see above). No metric is claimed in this README until it can be reproduced from a published harness and raw outputs.
-
-The evaluation set size, the labeling rules, and the raw model outputs will be published with the repo. The goal is not a flattering number; it is a number a judge can rerun.
+Latency and cost per plan are measured (see above). No other metric is claimed until it can be reproduced from the published harness and raw outputs.
 
 ---
 

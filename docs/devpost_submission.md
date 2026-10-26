@@ -43,7 +43,7 @@ The demo runs **Japan → Korea**: a small parcel from Tokyo to Seoul containing
 
 5. **Format the address.** Nemotron 3 Nano converts the address into the destination format and supplies a romanized line. The original and converted addresses sit side by side. The app does not validate deliverability and does not submit anything. Recipient names and phone numbers are never collected.
 
-6. **Compare rates and ETA.** Courier rates and ETA come from the EasyPost test API and carry a **LIVE** badge with a timestamp, or a **MOCK** badge when no key is configured. One EMS postal row comes from `data/jp_post_rates.json` — Japan Post for JP → KR, Korea Post for KR → JP — and carries a **TABLE** badge with its effective date and `verified: false`. FX comes from frankfurter.app and is labeled **LIVE** or **FALLBACK**. The comparison normalizes prices to JPY and KRW and sorts by JPY equivalent, with an ETA range. No rate is purchasable from Hakobu.
+6. **Compare rates and ETA.** Courier rates and ETA come from the EasyPost test API and carry a **LIVE** badge with a timestamp, or a **MOCK** badge when no key is configured. One EMS postal row comes from `data/jp_post_rates.json` — Japan Post for JP → KR, Korea Post for KR → JP — and carries a **TABLE** badge. JP → KR is Japan Post's official EMS zone-1 table (checked 2026-10-26, `verified: true`; the sample 1.2 kg parcel is JPY 2,500); KR → JP is still a SAMPLE table, labeled unverified (`verified: false`). FX comes from frankfurter.app and is labeled **LIVE** or **FALLBACK**. The comparison normalizes prices to JPY and KRW and sorts by JPY equivalent, with an ETA range. No rate is purchasable from Hakobu.
 
 7. **Review the plan.** The `08 / Routing` model/step panel shows the model, mode, and latency for each of the four model calls. Verifier verdicts sit next to the fields they checked. The plan stays in the browser session; the app does not store, submit, or export it.
 
@@ -133,7 +133,7 @@ Every number in the UI has a source and a basis label.
 | Duty / tax | Rules module plus FX | `ESTIMATE` | Amount, assumptions, threshold, official link |
 | Address | Nemotron 3 Nano | `AI FORMATTED` | Original vs formatted, romanized line |
 | Courier rate / ETA | EasyPost test API | `LIVE` or `MOCK` | Price, ETA, timestamp, "test rate" |
-| Postal rate / ETA | Japan Post / Korea Post EMS table | `TABLE` | Price, ETA, effective date, `verified: false` |
+| Postal rate / ETA | Japan Post / Korea Post EMS table | `TABLE` | Price, ETA (Hakobu's own estimate), source link, `verified` flag: JP → KR `true` (official Japan Post table, 2026-10-26), KR → JP `false` (SAMPLE) |
 | FX | frankfurter.app | `LIVE` or `FALLBACK` | Rate and date |
 
 Rate adapters share one return shape:
@@ -174,17 +174,22 @@ The duty estimate is deliberately conservative. It applies a small set of publis
 
 ### Evaluation
 
-I am building a small synthetic evaluation set of parcels with known item lists, destination rules, and human-labeled HS references. The metrics are:
+This is a small, honest measurement of one step, not the accuracy of the whole pipeline. I wrote 10 synthetic JP → KR parcel cases (n = 10): 3 with a deliberately wrong HS candidate, 3 where an obviously hazardous item (a lithium power bank sold as a "portable charger", flammable acetone nail polish remover, dried fish) is marked low risk with no flag, and 4 controls with correct outputs. I fed each case straight to the Ultra verifier, using the same prompt, JSON schema, model, temperature 0.2, `max_tokens` 3000 and `enable_thinking: false` as the app (the Nano and Super outputs are hand-written, not generated). Each case ran twice, 20 calls in total, and all 20 returned valid JSON.
 
-- classification field accuracy (category, risk level, risk signals),
-- prohibited/quarantine flag recall, counting "needs check" as a flag rather than a miss,
-- HS top-3 recall against a human-labeled reference,
-- address field accuracy after formatting,
-- verifier calibration (does `uncertain` correlate with wrong or incomplete generator output?),
-- p50/p95 latency per step,
-- cost per shipment from actual token usage.
+| Group | Cases / runs | Measured result |
+|---|---|---|
+| Wrong HS candidate | 3 / 6 | HS check `contradicted` in 6 of 6 runs (3 of 3 cases in run 1) |
+| Missing hazard flag | 3 / 6 | prohibited check `uncertain` in 6 of 6 runs, `contradicted` in 0 of 6 |
+| Controls (correct outputs) | 4 / 8 | overall `contradicted` in 0 of 8 runs; `uncertain` 7 of 8, `supported` 1 of 8 |
 
-Results: the accuracy evaluation is not done yet; only latency and cost have been measured (see the feedback section). I will not put a number in this submission that I cannot reproduce from the repository and the evaluation script. The eval harness and the raw outputs will be published with the code.
+What this does and does not show:
+
+- The verifier reliably contradicted blatantly wrong HS codes, and it never contradicted a correct control.
+- Hazard detection is weak. The verifier answered `uncertain` for all 6 hazard runs, but it also answered `uncertain` for 5 of 6 runs on ordinary low-risk items with no rule match. Most of its reasons read "no curated rule match; confirm", so `uncertain` on a missed hazard is mostly its generic "please confirm" behaviour, not proof that it recognised the hazard. Only the acetone case names the risk in its reason. In this sample it did not separate hazardous from ordinary items on that check.
+- By design the verifier says `uncertain` when evidence is thin and never approves, so 7 of 8 control runs also go to human review.
+- Cost and latency over the 20 verifier calls: median 1.27 s (1.14–1.66 s), about 778 prompt and 216 completion tokens per call, $0.0285 in total at list price (about $0.0014 per call).
+
+Limits: only 10 synthetic cases written by me, 2 runs each (repeats are not new cases), blatant rather than subtle errors, 3 cases per error type, no confidence intervals, address errors and the Nano and Super steps not evaluated. I am not claiming accuracy, recall, or time saved for the full pipeline. The script (`scripts/verifier_seeded_eval.mjs`), the raw results (`scripts/results/verifier_seeded_eval.json`) and the write-up (`docs/EVALUATION.md`) are in the repository, and the numbers can be reproduced for a few cents.
 
 ## Challenges
 
@@ -196,16 +201,16 @@ Results: the accuracy evaluation is not done yet; only latency and cost have bee
 
 **Addresses are local, messy, and personal.** Japanese and Korean addresses do not map one-to-one. Block order, postal code placement, building names, romanization, and floor/suite conventions all change. A single translation pass is not enough. The app shows original and converted side by side and leaves deliverability to the sender. Recipient names and phone numbers are never collected.
 
-**"Live" versus "table" is a trust problem.** It is tempting to put one "real-time" badge on everything. That would be a lie for postal rates. EasyPost test rates are live API calls but not purchasable quotes; the EMS row is an official table with an effective date. The UI uses separate badges and timestamps, and the copy never calls a table "real-time."
+**"Live" versus "table" is a trust problem.** It is tempting to put one "real-time" badge on everything. That would be a lie for postal rates. EasyPost test rates are live API calls but not purchasable quotes; the JP → KR EMS row is Japan Post's official table (the source page states no effective date), and the KR → JP row is a labeled sample. The UI uses separate badges and timestamps, and the copy never calls a table "real-time."
 
-**Cross-region latency and failure.** The Nemotron models are listed in different regions. A verifier call can be slower than the rest of the pipeline, and a mixed-model pipeline has more failure modes than a single-model app. The app uses timeouts and a visible deterministic fallback. The step panel is not decoration; it is how I debug which model ran and how long it took. Measured medians over 5 runs were 0.7–1.6 s per step and about 5.3 s summed across the four steps (HS and address run in parallel). Five runs are too few for a p95.
+**Cross-region latency and failure.** The Nemotron models are listed in different regions. A verifier call can be slower than the rest of the pipeline, and a mixed-model pipeline has more failure modes than a single-model app. The app uses timeouts and a visible deterministic fallback. The step panel is not decoration; it is how I debug which model ran and how long it took. Measured medians over 5 runs were 0.7–1.6 s per step and about 5.3 s summed across the four steps (HS and address run in parallel). A later single run on the deployed app was more variable, 1.3–4.3 s per step, and the 20 verifier calls in the evaluation above took 1.1–1.7 s each. Five runs are too few for a p95.
 
 ## Accomplishments
 
 - **A complete one-screen flow, not a chat demo.** A user can go from an item list to a reviewable plan with prohibited/quarantine flags, HS candidates, a duty estimate, a formatted address, and a rate comparison without leaving the page.
 - **A verifier pattern that is visible to the user.** Ultra checks Nano and Super, returns per-field verdicts, and flags uncertainty. The app shows the disagreement instead of hiding it.
 - **A model/step panel that makes routing visible.** Every step shows the model, mode, and latency. The panel explains why Nano classifies and formats, Super proposes HS candidates, and Ultra only verifies.
-- **Provenance designed in.** Live/mock/table badges, effective dates, source links, and timestamps are part of the data model, not a last-minute disclaimer.
+- **Provenance designed in.** Live/mock/table badges, a verified flag, source links, and timestamps are part of the data model, not a last-minute disclaimer.
 - **Bilingual address handling with a side-by-side review.** The split view treats address formatting as a reviewable transformation rather than a magic translation.
 - **A narrow, credible scope.** No payment, no label purchase, no customs filing. Hakobu is the preparation layer, and it is honest about that.
 
@@ -225,7 +230,7 @@ I am also proud of what the app refuses to do. It never auto-rejects an item, ne
 
 ## What's next
 
-- **Publish the evaluation.** Fill in the metrics above with reproducible results and keep the harness in the repo.
+- **Grow the evaluation.** The seeded-error set above is only 10 cases. Add subtle errors, more hazard types, a rule-aware hazard check, and a human-labeled HS reference set before claiming any rate.
 - **Add photo input with Nemotron 3.5 Super VL.** Photo input is not implemented in this build; the next step is a two-step vision-then-text path and a real label-photo test set.
 - **Expand the corridors.** Korea ↔ Japan already runs in both directions in the UI. Add a third corridor with a different rule and rate structure to prove the adapters generalize.
 - **Ground HS more deeply.** Retrieve official heading descriptions and explanatory notes, cite the exact heading, and abstain when the description is ambiguous.
@@ -233,7 +238,7 @@ I am also proud of what the app refuses to do. It never auto-rejects an item, ne
 - **Add live postal rate APIs** where they exist, and keep the table path for the ones that do not.
 - **Move the nightly refresh to a Nebius Serverless Job.** A scheduled job would fetch official rate and rule pages, diff them against the versioned JSON, and open a review item. This is the natural use of Nebius AI Cloud in the architecture, but it is not on the critical path for the demo. Status: not started.
 - **Add a repeat-sender mode** with saved parcels and a review queue, without turning the app into a database of personal data.
-- **Measure verifier economics.** The open question is when Ultra's verdict is worth 3.3× Super's input price. Measure quality and latency before changing the routing.
+- **Measure verifier economics.** The open question is when Ultra's verdict is worth 3.3× Super's input price. The seeded-error run above is a first data point (wrong HS caught 6 of 6, hazards only surfaced as generic `uncertain`); measure quality and latency on more cases before changing the routing.
 - **Export to carrier portals and printable customs forms.** Still human-submitted, always.
 
 ## Built with
@@ -294,7 +299,7 @@ Rate limits and 402/out-of-credit behavior, streaming, server-side JSON schema e
 
 - **Estimates, not advice.** Duty, tax, HS, prohibited/quarantine, and ETA outputs are estimates or hints, not legal, tax, or customs advice. The sender/importer is responsible for the final declaration. Official sources prevail.
 - **HS candidates are not binding.** Hakobu suggests candidates and shows its reasoning; it does not classify goods definitively.
-- **Rate labels are literal.** EasyPost rates are test-mode API responses, not purchasable quotes. Japan Post rates are an official table with an effective date, not a live API. FX is a reference rate, not a transaction rate.
+- **Rate labels are literal.** EasyPost rates are test-mode API responses, not purchasable quotes. Japan Post JP → KR rates are an official table (verified 2026-10-26), not a live API; Korea Post KR → JP rates are a labeled sample, unverified. FX is a reference rate, not a transaction rate.
 - **No payment, label, or filing.** Hakobu does not take payment, buy postage, or submit a customs declaration.
 - **Synthetic demo data.** Names, addresses, and parcel contents in the demo are synthetic. No confidential or proprietary data was used.
 - **Keys are not in the repo.** All API keys are server-side environment variables. `.env*` files are gitignored, and the repo is checked with a secret scanner before release.
